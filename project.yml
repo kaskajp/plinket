@@ -1,0 +1,60 @@
+name: Plinket
+options:
+  bundleIdPrefix: nu.4z
+  deploymentTarget:
+    iOS: "27.0"
+    macOS: "27.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""
+packages:
+  PlinketKit:
+    path: Packages/PlinketKit
+targets:
+  Plinket:
+    type: application
+    platform: auto
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - path: App
+        excludes:
+          - "iOS/**"
+          - "macOS/**"
+      - path: App/iOS
+        destinationFilters: [iOS]
+      - path: App/macOS
+        destinationFilters: [macOS]
+    dependencies:
+      - package: PlinketKit
+        product: PlinketKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nu.4z.plinket
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Plinket
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        CODE_SIGN_ENTITLEMENTS[sdk=iphone*]: App/Resources/Plinket-iOS.entitlements
+        CODE_SIGN_ENTITLEMENTS[sdk=macosx*]: App/Resources/Plinket-macOS.entitlements
+        ENABLE_HARDENED_RUNTIME[sdk=macosx*]: YES
+        CODE_SIGN_IDENTITY[sdk=macosx*]: "-"
+    info:
+      path: App/Resources/Info.plist
+      properties:
+        UIBackgroundModes: [audio]
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            CPTemplateApplicationSceneSessionRoleApplication:
+              - UISceneClassName: CPTemplateApplicationScene
+                UISceneConfigurationName: CarPlay
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).CarPlaySceneDelegate
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
