@@ -29,7 +29,7 @@ struct AlbumDetailView: View {
                 }
                 .labelStyle(.iconOnly)
                 .buttonStyle(.bordered)
-                .controlSize(.small)
+                .buttonBorderShape(.circle)
             }
             .listRowSeparator(.hidden)
             if let detail {

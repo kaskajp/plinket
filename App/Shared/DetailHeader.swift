@@ -4,6 +4,7 @@ import SwiftUI
 /// Cover, titles and Play / Shuffle for an album or playlist; `accessory` adds buttons after them.
 struct DetailHeader<Accessory: View>: View {
     private static var artworkSize: CGFloat { 320 }
+    private static var actionsMaxWidth: CGFloat { 400 }
 
     let coverArtID: String?
     let title: String
@@ -37,18 +38,25 @@ struct DetailHeader<Accessory: View>: View {
             }
             HStack(spacing: 12) {
                 Group {
-                    Button("Play", systemImage: "play.fill", action: play)
-                        // List rows tint label icons with the accent color, which hides it on a prominent button.
-                        .foregroundStyle(.white)
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
-                    Button("Shuffle", systemImage: "shuffle", action: shuffle)
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
+                    Button(action: play) {
+                        Label("Play", systemImage: "play.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    // List rows tint label icons with the accent color, which hides it on a prominent button.
+                    .foregroundStyle(.white)
+                    .buttonStyle(.borderedProminent)
+                    Button(action: shuffle) {
+                        Label("Shuffle", systemImage: "shuffle")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
                 }
                 .disabled(!canPlay)
                 accessory
             }
+            .lineLimit(1)
+            .controlSize(.large)
+            .frame(maxWidth: Self.actionsMaxWidth)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical)
