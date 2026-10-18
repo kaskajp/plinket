@@ -38,6 +38,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: nu.4z.plinket
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         GENERATE_INFOPLIST_FILE: YES
+        # Hand-maintained and not regenerated: Xcode adds the bundle keys, including Version and Build, at build time.
+        INFOPLIST_FILE: App/Resources/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: Plinket
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -47,18 +49,3 @@ targets:
         CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]: App/Resources/Plinket-iOS.entitlements
         CODE_SIGN_ENTITLEMENTS[sdk=macosx*]: App/Resources/Plinket-macOS.entitlements
         ENABLE_HARDENED_RUNTIME[sdk=macosx*]: YES
-    info:
-      path: App/Resources/Info.plist
-      properties:
-        CFBundleShortVersionString: $(MARKETING_VERSION)
-        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        UIBackgroundModes: [audio]
-        UIApplicationSceneManifest:
-          UIApplicationSupportsMultipleScenes: false
-          UISceneConfigurations:
-            CPTemplateApplicationSceneSessionRoleApplication:
-              - UISceneClassName: CPTemplateApplicationScene
-                UISceneConfigurationName: CarPlay
-                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).CarPlaySceneDelegate
-        NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
