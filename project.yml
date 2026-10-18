@@ -41,7 +41,9 @@ targets:
         # Hand-maintained and not regenerated: Xcode adds the bundle keys, including Version and Build, at build time.
         INFOPLIST_FILE: App/Resources/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: Plinket
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: "Plinket connects to your music server when it’s on your local network."
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
