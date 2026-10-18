@@ -28,10 +28,15 @@ struct PlayPauseButton: View {
 
     var body: some View {
         Button(action: action) {
-            if isPlaying {
-                Label("Pause", systemImage: "pause.fill")
-            } else {
-                Label("Play", systemImage: "play.fill")
+            ZStack {
+                // The glyphs differ by a point, so both reserve space to keep the button, and the bar around it, one size.
+                Label("Play", systemImage: "play.fill").hidden()
+                Label("Pause", systemImage: "pause.fill").hidden()
+                if isPlaying {
+                    Label("Pause", systemImage: "pause.fill")
+                } else {
+                    Label("Play", systemImage: "play.fill")
+                }
             }
         }
         .contentTransition(.symbolEffect(.replace))
