@@ -10,6 +10,16 @@ struct LibraryRootView: View {
     @State private var isShowingQueue = false
 
     var body: some View {
+        // Split view columns don't pass a bottom safe-area inset on to their lists, so the bar sits below them instead.
+        VStack(spacing: 0) {
+            splitView
+            PlayerBar(isShowingQueue: $isShowingQueue)
+        }
+        .spaceBarTogglesPlayback(player.togglePlayPause)
+        .commandArrowsMoveCursorWhileEditingText()
+    }
+
+    private var splitView: some View {
         NavigationSplitView {
             List(LibrarySection.sidebarSections, selection: $selection) { section in
                 Label(section.title, systemImage: section.systemImage)
@@ -32,14 +42,6 @@ struct LibraryRootView: View {
             QueueView()
                 .inspectorColumnWidth(min: 260, ideal: 300, max: 420)
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            PlayerBar(isShowingQueue: $isShowingQueue)
-        }
-        .spaceBarTogglesPlayback(player.togglePlayPause)
-        .commandArrowsMoveCursorWhileEditingText()
-        #if DEBUG
-        .writesLaunchWindowSnapshot()
-        #endif
     }
 
     private static var initialSelection: LibrarySection {

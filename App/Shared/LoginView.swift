@@ -15,12 +15,8 @@ struct LoginView: View {
     @FocusState private var focusedField: Field?
 
     var body: some View {
+        // Header and button live in the section's header and footer: macOS forms ignore clear row backgrounds.
         Form {
-            Section {
-                LoginHeader()
-                    .frame(maxWidth: .infinity)
-                    .listRowBackground(Color.clear)
-            }
             Section {
                 TextField("Server", text: $serverAddress, prompt: Text("Server address"))
                     .serverAddressInput()
@@ -38,19 +34,30 @@ struct LoginView: View {
                     .focused($focusedField, equals: .password)
                     .submitLabel(.go)
                     .onSubmit(signIn)
+            } header: {
+                LoginHeader()
+                    .frame(maxWidth: .infinity)
             } footer: {
-                LoginFooter(errorMessage: errorMessage)
+                VStack(spacing: 24) {
+                    LoginFooter(errorMessage: errorMessage)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    SignInButton(isSigningIn: isSigningIn, isEnabled: canSubmit, action: signIn)
+                }
             }
-            Section {
-                SignInButton(isSigningIn: isSigningIn, isEnabled: canSubmit, action: signIn)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-            }
+            .labelsHidden()
         }
         .formStyle(.grouped)
         .frame(maxWidth: 480)
         .frame(maxWidth: .infinity)
+        #if os(macOS)
+        // A grouped form scrolls instead of growing, so keep the window tall enough to show all of it.
+        .frame(minHeight: Self.minimumMacHeight)
+        #endif
     }
+
+    #if os(macOS)
+    private static var minimumMacHeight: CGFloat { 560 }
+    #endif
 
     private var canSubmit: Bool {
         !isSigningIn && !serverAddress.isEmpty && !username.isEmpty && !password.isEmpty
@@ -85,10 +92,12 @@ private struct LoginHeader: View {
                 .accessibilityHidden(true)
             Text("Plinket")
                 .font(.largeTitle.bold())
+                .foregroundStyle(Color.primary)
             Text("Sign in to your Navidrome server")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.secondary)
         }
+        .textCase(nil)
         .padding(.vertical, 24)
     }
 }
@@ -119,6 +128,7 @@ private struct SignInButton: View {
                 ProgressView()
                     .opacity(isSigningIn ? 1 : 0)
             }
+            .font(.headline)
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.glassProminent)

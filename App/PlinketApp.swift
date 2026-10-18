@@ -8,8 +8,12 @@ struct PlinketApp: App {
         WindowGroup {
             RootView()
                 .environment(appModel)
+                #if os(macOS) && DEBUG
+                .writesLaunchWindowSnapshot()
+                #endif
         }
         #if os(macOS)
+        .defaultSize(width: 1100, height: 760)
         .commands {
             PlaybackCommands(player: appModel.session?.player)
             LibraryCommands(library: appModel.session?.library)
