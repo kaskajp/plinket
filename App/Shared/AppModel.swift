@@ -60,11 +60,14 @@ struct SignedInSession: Identifiable {
 
 enum SignInError: LocalizedError {
     case invalidServerAddress
+    case plainHTTPOutsideLocalNetwork
 
     var errorDescription: String? {
         switch self {
         case .invalidServerAddress:
-            String(localized: "Enter an HTTPS server address and a username, e.g. music.example.com.")
+            String(localized: "Enter a server address and a username, e.g. music.example.com.")
+        case .plainHTTPOutsideLocalNetwork:
+            String(localized: "Plain HTTP only works for servers on your local network. Use an https:// address.")
         }
     }
 }
@@ -86,8 +89,13 @@ final class AppModel {
 
     /// Validates the credentials with a ping before persisting them.
     func signIn(serverAddress: String, username: String, password: String) async throws {
-        guard let config = ServerConfig(serverAddress: serverAddress, username: username) else {
+        let config: ServerConfig
+        do {
+            config = try ServerConfig(serverAddress: serverAddress, username: username)
+        } catch .invalid {
             throw SignInError.invalidServerAddress
+        } catch .plainHTTPOutsideLocalNetwork {
+            throw SignInError.plainHTTPOutsideLocalNetwork
         }
         try await SubsonicClient(config: config, password: password).ping()
         try credentialStore.savePassword(password, for: config)

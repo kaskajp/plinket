@@ -108,7 +108,7 @@ private struct LoginFooter: View {
             Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
                 .foregroundStyle(.red)
         } else {
-            Text("For example music.example.com. Plinket connects over HTTPS only.")
+            Text("For example music.example.com, or http://192.168.1.10:4533 on your local network.")
         }
     }
 }

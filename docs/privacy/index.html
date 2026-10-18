@@ -20,7 +20,7 @@
         <p>To sign you in, Plinket stores your server address and username on your device, and your password in the system Keychain. It also keeps a cache of your library and cover art, your playback queue, and any plays still waiting to be sent to your server. All of this stays on your device and is removed when you sign out or delete the app.</p>
 
         <h2>What goes to your server</h2>
-        <p>Plinket only talks to the server you sign in to. It sends that server the requests needed to browse and play your music, the songs you play (scrobbles) and the albums and songs you mark as favorites. Your password is never sent; Plinket signs in with a token derived from it. Plinket only connects over HTTPS. What your server does with this information is up to whoever runs it.</p>
+        <p>Plinket only talks to the server you sign in to. It sends that server the requests needed to browse and play your music, the songs you play (scrobbles) and the albums and songs you mark as favorites. Your password is never sent; Plinket signs in with a token derived from it. Plinket connects over HTTPS, except to a server on your local network that you enter with an http:// address. What your server does with this information is up to whoever runs it.</p>
 
         <h2>Local network</h2>
         <p>If your server is on your local network, iOS and macOS ask for permission to connect to it. Plinket uses that permission only to reach your server.</p>
