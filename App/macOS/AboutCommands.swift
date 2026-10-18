@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Replaces About Plinket so the standard panel also shows what the app is and links to its GitHub page.
+/// Replaces About Plinket so the standard panel also shows what the app is and links to its website and privacy policy.
 struct AboutCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .appInfo) {
@@ -21,7 +21,7 @@ struct AboutCommands: Commands {
             attributes: [.font: font, .foregroundColor: NSColor.labelColor, .paragraphStyle: paragraph]
         )
         let links = [
-            (String(localized: "Plinket on GitHub"), AppInfo.repositoryURL),
+            (String(localized: "Visit Website"), AppInfo.websiteURL),
             (String(localized: "Privacy Policy"), AppInfo.privacyPolicyURL),
         ]
         for (index, (title, url)) in links.enumerated() {

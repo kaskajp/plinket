@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The app's icon, version and description, with a link to its GitHub page.
+/// The app's icon, version and description, with links to its website and privacy policy.
 struct AboutView: View {
     private let logoSize: CGFloat = 88
 
@@ -24,8 +24,8 @@ struct AboutView: View {
                 .listRowBackground(Color.clear)
             }
             Section {
-                Link(destination: AppInfo.repositoryURL) {
-                    Label("Plinket on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+                Link(destination: AppInfo.websiteURL) {
+                    Label("Visit Website", systemImage: "globe")
                 }
                 Link(destination: AppInfo.privacyPolicyURL) {
                     Label("Privacy Policy", systemImage: "hand.raised")
