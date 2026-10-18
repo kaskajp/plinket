@@ -20,10 +20,16 @@ struct AboutCommands: Commands {
             string: AppInfo.summary + "\n",
             attributes: [.font: font, .foregroundColor: NSColor.labelColor, .paragraphStyle: paragraph]
         )
-        credits.append(NSAttributedString(
-            string: String(localized: "Plinket on GitHub"),
-            attributes: [.font: font, .link: AppInfo.repositoryURL, .paragraphStyle: paragraph]
-        ))
+        let links = [
+            (String(localized: "Plinket on GitHub"), AppInfo.repositoryURL),
+            (String(localized: "Privacy Policy"), AppInfo.privacyPolicyURL),
+        ]
+        for (index, (title, url)) in links.enumerated() {
+            if index > 0 {
+                credits.append(NSAttributedString(string: "  ·  ", attributes: [.font: font, .foregroundColor: NSColor.secondaryLabelColor, .paragraphStyle: paragraph]))
+            }
+            credits.append(NSAttributedString(string: title, attributes: [.font: font, .link: url, .paragraphStyle: paragraph]))
+        }
         return credits
     }
 }

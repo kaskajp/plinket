@@ -5,6 +5,7 @@ import SwiftUI
 enum AppInfo {
     static let summary = String(localized: "A bare-essentials music player for your Navidrome library, made for intentional, album-first listening.")
     static let repositoryURL = URL(string: "https://github.com/kaskajp/plinket")!
+    static let privacyPolicyURL = URL(string: "https://plinket.4z.nu/privacy/")!
 
     /// "Version 0.1.0 (1)", from the bundle.
     static var versionDescription: String {

@@ -27,6 +27,9 @@ struct AboutView: View {
                 Link(destination: AppInfo.repositoryURL) {
                     Label("Plinket on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
                 }
+                Link(destination: AppInfo.privacyPolicyURL) {
+                    Label("Privacy Policy", systemImage: "hand.raised")
+                }
             }
         }
         .navigationTitle("About")
