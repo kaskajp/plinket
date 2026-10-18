@@ -99,15 +99,23 @@ private struct TrackRow: View {
     let artist: String?
     let duration: Int?
 
+    @Environment(\.songPlaybackState) private var playbackState
+
     var body: some View {
         HStack(spacing: 12) {
-            Text(String(number))
-                .font(.subheadline.monospacedDigit())
-                .foregroundStyle(.secondary)
-                .frame(minWidth: 24, alignment: .trailing)
+            Group {
+                if playbackState == .idle {
+                    Text(String(number))
+                        .foregroundStyle(.secondary)
+                } else {
+                    NowPlayingIndicator(isPlaying: playbackState == .playing)
+                        .foregroundStyle(.tint)
+                }
+            }
+            .font(.subheadline.monospacedDigit())
+            .frame(minWidth: 24, alignment: .trailing)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .lineLimit(1)
+                SongTitle(title: title)
                 if let artist {
                     Text(artist)
                         .font(.caption)
