@@ -84,12 +84,7 @@ private struct LoginHeader: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Image("Logo")
-                .resizable()
-                .frame(width: logoSize, height: logoSize)
-                .clipShape(.rect(cornerRadius: logoSize * 0.225, style: .continuous))
-                .shadow(color: .black.opacity(0.2), radius: 12, y: 6)
-                .accessibilityHidden(true)
+            AppLogo(size: logoSize)
             Text("Plinket")
                 .font(.largeTitle.bold())
                 .foregroundStyle(Color.primary)

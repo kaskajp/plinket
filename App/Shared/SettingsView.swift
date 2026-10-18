@@ -20,6 +20,14 @@ struct SettingsView: View {
                 Text("Not signed in.")
                     .foregroundStyle(.secondary)
             }
+            #if os(iOS)
+            // macOS has About Plinket in the app menu instead.
+            Section {
+                NavigationLink("About Plinket") {
+                    AboutView()
+                }
+            }
+            #endif
         }
         .formStyle(.grouped)
         .navigationTitle("Settings")

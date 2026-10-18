@@ -15,6 +15,7 @@ struct PlinketApp: App {
         #if os(macOS)
         .defaultSize(width: 1100, height: 760)
         .commands {
+            AboutCommands()
             PlaybackCommands(player: appModel.session?.player)
             LibraryCommands(library: appModel.session?.library)
         }
