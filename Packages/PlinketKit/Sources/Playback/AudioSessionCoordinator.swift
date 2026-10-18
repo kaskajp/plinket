@@ -21,9 +21,8 @@ final class AudioSessionCoordinator {
     }
 
     func activate() {
-        do {
-            try session.setActive(true)
-        } catch {
+        session.activate(options: []) { _, error in
+            guard let error else { return }
             Logger.playback.error("Could not activate audio session: \(error)")
         }
     }
@@ -33,9 +32,8 @@ final class AudioSessionCoordinator {
             NotificationCenter.default.removeObserver(observer)
         }
         notificationObservers = []
-        do {
-            try session.setActive(false, options: .notifyOthersOnDeactivation)
-        } catch {
+        session.deactivate(options: .notifyOthersOnDeactivation) { _, error in
+            guard let error else { return }
             Logger.playback.error("Could not deactivate audio session: \(error)")
         }
     }
