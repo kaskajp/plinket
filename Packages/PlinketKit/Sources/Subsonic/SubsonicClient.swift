@@ -106,6 +106,8 @@ extension URLSessionConfiguration {
     static var subsonicDefault: URLSessionConfiguration {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 15
+        // Each request has a fresh salt, so cached responses could never be reused; the library keeps its own cache.
+        configuration.urlCache = nil
         return configuration
     }
 }

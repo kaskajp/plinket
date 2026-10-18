@@ -9,13 +9,13 @@ struct ServerConfigTests {
         #expect(config?.baseURL.absoluteString == "https://music.example.com")
     }
 
-    @Test func serverAddress_keepsExplicitSchemePortAndPath() {
-        let config = ServerConfig(serverAddress: "http://nas.local:4533/navidrome", username: "demo")
+    @Test func serverAddress_keepsPortAndPath() {
+        let config = ServerConfig(serverAddress: "HTTPS://nas.example.com:4533/navidrome", username: "demo")
 
-        #expect(config?.baseURL.absoluteString == "http://nas.local:4533/navidrome")
+        #expect(config?.baseURL.absoluteString == "https://nas.example.com:4533/navidrome")
     }
 
-    @Test(arguments: ["", "ftp://music.example.com", "https://"])
+    @Test(arguments: ["", "http://music.example.com", "ftp://music.example.com", "https://"])
     func serverAddress_rejectsUnusableAddresses(address: String) {
         #expect(ServerConfig(serverAddress: address, username: "demo") == nil)
     }

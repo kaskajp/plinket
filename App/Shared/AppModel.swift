@@ -64,7 +64,7 @@ enum SignInError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidServerAddress:
-            String(localized: "Enter a server address and username, e.g. music.example.com.")
+            String(localized: "Enter an HTTPS server address and a username, e.g. music.example.com.")
         }
     }
 }

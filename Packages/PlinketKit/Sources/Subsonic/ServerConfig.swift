@@ -10,7 +10,7 @@ public struct ServerConfig: Codable, Sendable, Hashable {
         self.username = username
     }
 
-    /// Builds a config from a user-typed address, assuming HTTPS when no scheme is given.
+    /// Builds a config from a user-typed address. Only HTTPS is accepted, and assumed when no scheme is given.
     public init?(serverAddress: String, username: String) {
         guard let baseURL = Self.normalizedBaseURL(from: serverAddress) else { return nil }
         let trimmedUsername = username.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -18,19 +18,18 @@ public struct ServerConfig: Codable, Sendable, Hashable {
         self.init(baseURL: baseURL, username: trimmedUsername)
     }
 
-    private static let supportedSchemes: Set<String> = ["http", "https"]
-    private static let defaultScheme = "https"
+    private static let scheme = "https"
 
     private static func normalizedBaseURL(from serverAddress: String) -> URL? {
         var address = serverAddress.trimmingCharacters(in: .whitespacesAndNewlines)
         if !address.contains("://") {
-            address = "\(defaultScheme)://\(address)"
+            address = "\(scheme)://\(address)"
         }
         guard var components = URLComponents(string: address),
-              let scheme = components.scheme?.lowercased(),
-              supportedSchemes.contains(scheme),
+              components.scheme?.lowercased() == scheme,
               let host = components.host, !host.isEmpty
         else { return nil }
+        components.scheme = scheme
         while components.path.hasSuffix("/") {
             components.path.removeLast()
         }

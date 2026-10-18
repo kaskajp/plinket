@@ -49,7 +49,10 @@ struct LoginView: View {
         .formStyle(.grouped)
         .frame(maxWidth: 480)
         .frame(maxWidth: .infinity)
-        #if os(macOS)
+        #if os(iOS)
+        // The form is narrower than an iPad screen, so its background has to reach the edges separately.
+        .background(Color(uiColor: .systemGroupedBackground))
+        #else
         // A grouped form scrolls instead of growing, so keep the window tall enough to show all of it.
         .frame(minHeight: Self.minimumMacHeight)
         #endif
@@ -105,7 +108,7 @@ private struct LoginFooter: View {
             Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
                 .foregroundStyle(.red)
         } else {
-            Text("For example music.example.com or 192.168.1.10:4533")
+            Text("For example music.example.com. Plinket connects over HTTPS only.")
         }
     }
 }
