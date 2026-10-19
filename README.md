@@ -39,6 +39,9 @@ Add notes under `## [Unreleased]` in `CHANGELOG.md` as you go. To release:
 
 The script reads Version and Build from the Xcode project, files the Unreleased notes under `## [Version (Build)] - date`, copies the numbers into `project.yml` so the next `xcodegen generate` keeps them, then commits and tags `vVersion-build.Build`. Run it before regenerating the project, or the regenerated project resets Version and Build to what `project.yml` has.
 
+## App Store art
+`scripts/render-store-art.swift` renders the product page header and search results images into `build/store-art/`. The tagline is set at the top of the script.
+
 ## Debug launch options
 Debug builds read these environment variables (ignored in release):
 `PLINKET_DEBUG_SERVER`, `PLINKET_DEBUG_USER`, `PLINKET_DEBUG_PASSWORD` (auto sign-in), `PLINKET_DEBUG_SECTION`, `PLINKET_DEBUG_SEARCH`, `PLINKET_DEBUG_OPEN_ALBUM`, `PLINKET_DEBUG_PLAY_ALBUM`, `PLINKET_DEBUG_NOW_PLAYING`, `PLINKET_DEBUG_WINDOW_SNAPSHOT`.
