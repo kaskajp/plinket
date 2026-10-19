@@ -6,6 +6,8 @@ Versions are shown as Version (Build), matching the app. Add notes under Unrelea
 
 ## [Unreleased]
 
+## [1.0.0 (1)] - 2026-10-19
+
 First version of Plinket, an album-first client for Navidrome and other Subsonic API servers, on iPhone, iPad and Mac (iOS 27 and macOS 27).
 
 ### Added
@@ -22,3 +24,6 @@ First version of Plinket, an album-first client for Navidrome and other Subsonic
 - macOS: sidebar layout with a player bar, a queue inspector, and menu and keyboard commands for playback.
 - About screens with links to the website and privacy policy.
 - App icon and purple accent color.
+
+[Unreleased]: https://github.com/kaskajp/plinket/compare/v1.0.0-build.1...HEAD
+[1.0.0 (1)]: https://github.com/kaskajp/plinket/releases/tag/v1.0.0-build.1
