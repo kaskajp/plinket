@@ -42,6 +42,16 @@ The script reads Version and Build from the Xcode project, files the Unreleased 
 ## App Store art
 `scripts/render-store-art.swift` renders the product page header and search results images into `build/store-art/`. The tagline is set at the top of the script.
 
+Screenshots must not show real album artwork, so take them against the sample library: invented artists and albums with generated abstract covers, served over the Subsonic API on `127.0.0.1:4533`.
+
+```sh
+scripts/sample-library/server.py --dump build/sample-library/library.json
+scripts/sample-library/render-covers.swift build/sample-library
+scripts/sample-library/server.py
+```
+
+Then launch a debug build with `PLINKET_DEBUG_SERVER=http://127.0.0.1:4533` and any username and password, plus the launch options below to open the screen you want.
+
 ## Debug launch options
 Debug builds read these environment variables (ignored in release):
 `PLINKET_DEBUG_SERVER`, `PLINKET_DEBUG_USER`, `PLINKET_DEBUG_PASSWORD` (auto sign-in), `PLINKET_DEBUG_SECTION`, `PLINKET_DEBUG_SEARCH`, `PLINKET_DEBUG_OPEN_ALBUM`, `PLINKET_DEBUG_PLAY_ALBUM`, `PLINKET_DEBUG_NOW_PLAYING`, `PLINKET_DEBUG_WINDOW_SNAPSHOT`.
