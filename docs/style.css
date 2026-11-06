@@ -72,6 +72,17 @@ h1 {
     font-weight: 600;
 }
 
+.app-store-badge {
+    display: inline-block;
+    margin-top: 16px;
+}
+
+.app-store-badge img {
+    display: block;
+    width: auto;
+    height: 40px;
+}
+
 .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
