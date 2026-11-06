@@ -4,6 +4,32 @@ import Subsonic
 import Testing
 
 struct AlbumSortTests {
+    @Test func recentlyPlayed_putsLatestPlaysFirstAndUnplayedLast() {
+        let albums = [
+            Album(id: "unplayed", name: "A"),
+            Album(id: "older", name: "B", created: Date(timeIntervalSince1970: 300), played: Date(timeIntervalSince1970: 100)),
+            Album(id: "latest", name: "C", created: Date(timeIntervalSince1970: 100), played: Date(timeIntervalSince1970: 200)),
+        ]
+
+        let sorted = AlbumSort.recentlyPlayed.sorted(albums)
+
+        #expect(sorted.map(\.id) == ["latest", "older", "unplayed"])
+    }
+
+    @Test func recentlyPlayed_breaksTiesByTitleIncludingUnplayedAlbums() {
+        let played = Date(timeIntervalSince1970: 100)
+        let albums = [
+            Album(id: "unplayed-z", name: "Z"),
+            Album(id: "played-z", name: "Z", played: played),
+            Album(id: "unplayed-a", name: "A"),
+            Album(id: "played-a", name: "A", played: played),
+        ]
+
+        let sorted = AlbumSort.recentlyPlayed.sorted(albums)
+
+        #expect(sorted.map(\.id) == ["played-a", "played-z", "unplayed-a", "unplayed-z"])
+    }
+
     @Test func recentlyAdded_putsNewestFirstAndUndatedLast() {
         let albums = [
             Album(id: "undated", name: "Undated"),
