@@ -4,6 +4,35 @@ import Subsonic
 import Testing
 
 struct AlbumSortTests {
+    @Test func recentlyPlayed_putsLatestPlaysFirstAndUnplayedLast() {
+        let albums = [
+            Album(id: "unplayed", name: "A"),
+            Album(id: "older", name: "B", created: Date(timeIntervalSince1970: 300), played: Date(timeIntervalSince1970: 100)),
+            Album(id: "latest", name: "C", created: Date(timeIntervalSince1970: 100), played: Date(timeIntervalSince1970: 200)),
+        ]
+
+        let sorted = AlbumSort.recentlyPlayed.sorted(albums)
+
+        #expect(sorted.map(\.id) == ["latest", "older", "unplayed"])
+    }
+
+    @Test(arguments: AlbumSort.Direction.allCases)
+    func recentlyPlayed_keepsUnplayedLastAndBreaksTiesByTitle(direction: AlbumSort.Direction) {
+        let played = Date(timeIntervalSince1970: 100)
+        let albums = [
+            Album(id: "unplayed-z", name: "Z"),
+            Album(id: "played-z", name: "Z", played: played),
+            Album(id: "unplayed-a", name: "A"),
+            Album(id: "played-a", name: "A", played: played),
+            Album(id: "latest", name: "Latest", played: Date(timeIntervalSince1970: 200)),
+        ]
+
+        let sorted = AlbumSort.recentlyPlayed.sorted(albums, direction: direction)
+
+        let playedIDs = direction == .ascending ? ["played-a", "played-z", "latest"] : ["latest", "played-a", "played-z"]
+        #expect(sorted.map(\.id) == playedIDs + ["unplayed-a", "unplayed-z"])
+    }
+
     @Test(arguments: AlbumSort.Direction.allCases)
     func recentlyAdded_keepsUndatedLast(direction: AlbumSort.Direction) {
         let albums = [

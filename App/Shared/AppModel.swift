@@ -17,6 +17,8 @@ struct SignedInSession: Identifiable {
     let scrobbler: Scrobbler
     let queueStore: QueueStore
     let nowPlaying: NowPlayingBridge
+    /// Restores local state without waiting for the server.
+    let restoration: Task<Void, Never>
     /// Restores the saved queue and cached library, then revalidates the library. Starts with the session, so it
     /// runs once whichever scene (phone or CarPlay) comes up first.
     let startup: Task<Void, Never>
@@ -36,10 +38,16 @@ struct SignedInSession: Identifiable {
         nowPlaying = NowPlayingBridge(player: player) { coverArtID in
             try? await imageCache.image(coverArtID: coverArtID, pixelSize: SignedInSession.nowPlayingArtworkPixelSize)
         }
-        startup = Task {
+        let restoration = Task {
             await player.restoreSavedQueue()
-            scrobbler.flushPending()
+            guard !Task.isCancelled else { return }
             await library.loadCachedSnapshots()
+        }
+        self.restoration = restoration
+        startup = Task {
+            await restoration.value
+            guard !Task.isCancelled else { return }
+            scrobbler.flushPending()
             await library.refreshAll()
         }
     }
@@ -48,7 +56,9 @@ struct SignedInSession: Identifiable {
 
     /// Stops playback and deletes everything this session stored on disk.
     func tearDown() async {
+        restoration.cancel()
         startup.cancel()
+        await restoration.value
         nowPlaying.invalidate()
         player.shutDown()
         await queueStore.remove()

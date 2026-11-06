@@ -127,7 +127,7 @@ private struct AlbumSortMenu: View {
         switch selection {
         case .title, .artist:
             direction == .ascending ? "A–Z" : "Z–A"
-        case .recentlyAdded, .year:
+        case .recentlyAdded, .recentlyPlayed, .year:
             direction == .ascending ? "Oldest First" : "Newest First"
         }
     }
@@ -137,6 +137,7 @@ private extension AlbumSort {
     var title: LocalizedStringKey {
         switch self {
         case .recentlyAdded: "Recently Added"
+        case .recentlyPlayed: "Recently Played"
         case .title: "Title"
         case .artist: "Artist"
         case .year: "Year"

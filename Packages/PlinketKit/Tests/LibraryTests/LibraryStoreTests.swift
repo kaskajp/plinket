@@ -70,6 +70,46 @@ struct LibraryStoreTests {
         #expect(store.albums.map(\.id) == ["2", "1"])
     }
 
+    @Test(arguments: AlbumSort.Direction.allCases)
+    func recentlyPlayed_reordersLoadedAlbumsAndSurvivesRelaunch(direction: AlbumSort.Direction) async {
+        let client = makeStubbedClient { _ in
+            subsonicResponse("albumList2", json: #"{"album":[{"id":"older","name":"A","played":"2026-10-15T12:00:00Z"},{"id":"latest","name":"Z","played":"2026-10-16T12:00:00.123456789Z"},{"id":"unplayed","name":"B"}]}"#)
+        }
+        let store = makeStore(client: client)
+        store.albumSort = .title
+        store.albumSortDirection = .ascending
+        await store.refresh(.albums)
+        #expect(store.albums.map(\.id) == ["older", "unplayed", "latest"])
+
+        store.albumSort = .recentlyPlayed
+        store.albumSortDirection = direction
+
+        let playedIDs = direction == .ascending ? ["older", "latest"] : ["latest", "older"]
+        #expect(store.albums.map(\.id) == playedIDs + ["unplayed"])
+        let relaunchedStore = makeStore(client: makeOfflineClient())
+        await relaunchedStore.loadCachedSnapshots()
+        #expect(relaunchedStore.albumSort == .recentlyPlayed)
+        #expect(relaunchedStore.albumSortDirection == direction)
+        #expect(relaunchedStore.albums == store.albums)
+    }
+
+    @Test func refresh_usesUpdatedPlaybackHistoryForRecentlyPlayedSort() async {
+        let previousClient = makeStubbedClient { _ in
+            subsonicResponse("albumList2", json: #"{"album":[{"id":"older","name":"A","played":"2026-10-14T12:00:00Z"},{"id":"latest","name":"Z"}]}"#)
+        }
+        await makeStore(client: previousClient).refresh(.albums)
+        let store = makeStore(client: makeStubbedClient { _ in
+            subsonicResponse("albumList2", json: #"{"album":[{"id":"older","name":"A","played":"2026-10-15T12:00:00Z"},{"id":"latest","name":"Z","played":"2026-10-16T12:00:00Z"}]}"#)
+        })
+        store.albumSort = .recentlyPlayed
+        await store.loadCachedSnapshots()
+        #expect(store.albums.map(\.id) == ["older", "latest"])
+
+        await store.refresh(.albums)
+
+        #expect(store.albums.map(\.id) == ["latest", "older"])
+    }
+
     @Test func refreshArtists_persistsSnapshotForNextLaunch() async {
         let onlineClient = makeStubbedClient(handler: routedHandler(["getArtists": artistsResponse]))
         await makeStore(client: onlineClient).refresh(.artists)

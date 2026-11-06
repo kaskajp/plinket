@@ -1,11 +1,35 @@
 import SwiftUI
 
-/// Login until a session exists, then the platform's library UI.
+/// Restores local state behind the splash screen, then shows sign-in or the library.
 struct RootView: View {
     @Environment(AppModel.self) private var appModel
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isLaunching = true
 
     var body: some View {
+        ZStack {
+            if isLaunching {
+                SplashView()
+            } else {
+                content
+            }
+        }
+        .task {
+            await appModel.session?.restoration.value
+            guard !Task.isCancelled else { return }
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) {
+                isLaunching = false
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard let session = appModel.session else { return }
+            handleScenePhase(newPhase, in: session)
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
         if let session = appModel.session {
             LibraryRootView()
                 .environment(session.library)
@@ -19,9 +43,6 @@ struct RootView: View {
                     await LaunchOptions.playRequestedAlbum(library: session.library, player: session.player)
                 }
                 #endif
-                .onChange(of: scenePhase) { _, newPhase in
-                    handleScenePhase(newPhase, in: session)
-                }
         } else {
             LoginView()
                 #if DEBUG

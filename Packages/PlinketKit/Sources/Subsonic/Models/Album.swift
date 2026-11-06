@@ -13,6 +13,7 @@ public struct Album: Codable, Sendable, Hashable, Identifiable {
     public let year: Int?
     public let genre: String?
     public let created: Date?
+    public let played: Date?
     public var starred: Date?
     /// Server-side sort key, e.g. with leading articles removed.
     public let sortName: String?
@@ -30,6 +31,7 @@ public struct Album: Codable, Sendable, Hashable, Identifiable {
         year: Int? = nil,
         genre: String? = nil,
         created: Date? = nil,
+        played: Date? = nil,
         starred: Date? = nil,
         sortName: String? = nil
     ) {
@@ -43,12 +45,13 @@ public struct Album: Codable, Sendable, Hashable, Identifiable {
         self.year = year
         self.genre = genre
         self.created = created
+        self.played = played
         self.starred = starred
         self.sortName = sortName
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, name, artist, songCount, duration, year, genre, created, starred, sortName
+        case id, name, artist, songCount, duration, year, genre, created, played, starred, sortName
         case artistID = "artistId"
         case coverArtID = "coverArt"
     }
