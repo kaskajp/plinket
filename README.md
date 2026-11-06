@@ -57,4 +57,6 @@ Debug builds read these environment variables (ignored in release):
 `PLINKET_DEBUG_SERVER`, `PLINKET_DEBUG_USER`, `PLINKET_DEBUG_PASSWORD` (auto sign-in), `PLINKET_DEBUG_SECTION`, `PLINKET_DEBUG_SEARCH`, `PLINKET_DEBUG_OPEN_ALBUM`, `PLINKET_DEBUG_PLAY_ALBUM`, `PLINKET_DEBUG_NOW_PLAYING`, `PLINKET_DEBUG_WINDOW_SNAPSHOT`.
 
 ## CarPlay
-The `com.apple.developer.carplay-audio` entitlement works in the Simulator (I/O → External Displays → CarPlay). Running in a car requires Apple to grant the entitlement.
+Both device and Simulator builds include the `com.apple.developer.carplay-audio` entitlement. For device builds, use the Apple Developer team granted CarPlay audio access and a provisioning profile that includes the entitlement. If an existing profile predates the approval, regenerate it before signing.
+
+To test in the Simulator, choose I/O → External Displays → CarPlay. Connect an iPhone to a CarPlay receiver to test on hardware. Sign in on the iPhone first; CarPlay shares its library, queue and playback controls.

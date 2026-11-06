@@ -10,6 +10,7 @@ Versions are shown as Version (Build), matching the app. Add notes under Unrelea
 - Ascending and descending album sorting, saved between launches, with missing values kept last.
 - Recently Played album sorting using the server's playback history, with unplayed albums last.
 - A branded launch screen on iPhone and iPad, with a matching startup screen on iOS and Mac while the saved library and queue are restored.
+- Enable CarPlay on iPhone builds, with album, playlist and favorites browsing, playback controls and Up Next.
 
 ## [1.0.0 (1)] - 2026-10-19
 
