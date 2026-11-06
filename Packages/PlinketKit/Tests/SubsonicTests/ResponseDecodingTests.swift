@@ -3,6 +3,16 @@ import Testing
 @testable import Subsonic
 
 struct ResponseDecodingTests {
+    @Test func albumList_decodesPersonalRatingsAndAllowsUnratedAlbums() async throws {
+        let client = makeStubbedClient { _ in
+            StubURLProtocol.StubResponse(body: Data(#"{"subsonic-response":{"status":"ok","version":"1.16.1","albumList2":{"album":[{"id":"rated","name":"Rated","userRating":4,"averageRating":2.5},{"id":"zero","name":"Zero","userRating":0},{"id":"missing","name":"Missing"}]}}}"#.utf8))
+        }
+
+        let albums = try await client.albumList(.newest)
+
+        #expect(albums.map(\.userRating) == [4, 0, nil])
+    }
+
     @Test func albumList_decodesAlbums() async throws {
         let client = try makeStubbedClient(fixture: "getAlbumList2")
 

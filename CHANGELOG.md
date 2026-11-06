@@ -7,6 +7,7 @@ Versions are shown as Version (Build), matching the app. Add notes under Unrelea
 ## [Unreleased]
 
 ### Added
+- Album sorting by your server rating, with highest/lowest-first ordering and unrated albums last.
 - Ascending and descending album sorting, saved between launches, with missing values kept last.
 - Recently Played album sorting using the server's playback history, with unplayed albums last.
 - A branded launch screen on iPhone and iPad, with a matching startup screen on iOS and Mac while the saved library and queue are restored.

@@ -5,6 +5,7 @@ import Subsonic
 public enum AlbumSort: String, CaseIterable, Codable, Sendable {
     case recentlyAdded
     case recentlyPlayed
+    case rating
     case title
     case artist
     case year
@@ -17,7 +18,7 @@ public enum AlbumSort: String, CaseIterable, Codable, Sendable {
     public var defaultDirection: Direction {
         switch self {
         case .title, .artist: .ascending
-        case .recentlyAdded, .recentlyPlayed, .year: .descending
+        case .recentlyAdded, .recentlyPlayed, .rating, .year: .descending
         }
     }
 
@@ -46,6 +47,9 @@ public enum AlbumSort: String, CaseIterable, Codable, Sendable {
                 .then(Self.compareTitles(lhs, rhs))
         case .title:
             return Self.compareTitles(lhs, rhs, direction: direction)
+        case .rating:
+            return Self.compareNilsLast(Self.rating(lhs), Self.rating(rhs), descending: direction == .descending)
+                .then(Self.compareTitles(lhs, rhs))
         case .artist:
             return Self.compareNilsLast(Self.sortText(lhs.artist), Self.sortText(rhs.artist)) {
                 Self.compareText($0, $1, direction: direction)
@@ -56,6 +60,11 @@ public enum AlbumSort: String, CaseIterable, Codable, Sendable {
             return Self.compareNilsLast(lhs.year, rhs.year, descending: direction == .descending)
                 .then(Self.compareTitles(lhs, rhs))
         }
+    }
+
+    private static func rating(_ album: Album) -> Int? {
+        guard let rating = album.userRating, rating > 0 else { return nil }
+        return rating
     }
 
     private static func compareTitles(
