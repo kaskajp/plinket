@@ -58,6 +58,50 @@ struct LibraryStoreTests {
         #expect(store.albumSortDirection == sort.defaultDirection)
     }
 
+    @Test(arguments: AlbumSort.Direction.allCases)
+    func rating_reordersLoadedAlbumsAndSurvivesRelaunchWithoutRequests(direction: AlbumSort.Direction) async {
+        let recorder = RequestRecorder()
+        let client = makeStubbedClient { request in
+            recorder.record(request)
+            return subsonicResponse("albumList2", json: #"{"album":[{"id":"low","name":"A","userRating":1},{"id":"high","name":"Z","userRating":5},{"id":"unrated","name":"B"},{"id":"zero","name":"C","userRating":0}]}"#)
+        }
+        let store = makeStore(client: client)
+        store.albumSort = .title
+        store.albumSortDirection = .ascending
+        await store.refresh(.albums)
+        #expect(store.albums.map(\.id) == ["low", "unrated", "zero", "high"])
+        let requestCount = recorder.urls.count
+
+        store.albumSort = .rating
+        store.albumSortDirection = direction
+
+        let rated = direction == .ascending ? ["low", "high"] : ["high", "low"]
+        #expect(store.albums.map(\.id) == rated + ["unrated", "zero"])
+        #expect(recorder.urls.count == requestCount)
+        let relaunchedStore = makeStore(client: makeOfflineClient())
+        await relaunchedStore.loadCachedSnapshots()
+        #expect(relaunchedStore.albumSort == .rating)
+        #expect(relaunchedStore.albumSortDirection == direction)
+        #expect(relaunchedStore.albums == store.albums)
+    }
+
+    @Test func refresh_usesUpdatedRatingsForRatingSort() async {
+        let previousClient = makeStubbedClient { _ in
+            subsonicResponse("albumList2", json: #"{"album":[{"id":"a","name":"A","userRating":5},{"id":"z","name":"Z","userRating":1}]}"#)
+        }
+        await makeStore(client: previousClient).refresh(.albums)
+        let store = makeStore(client: makeStubbedClient { _ in
+            subsonicResponse("albumList2", json: #"{"album":[{"id":"a","name":"A","userRating":0},{"id":"z","name":"Z","userRating":5}]}"#)
+        })
+        store.albumSort = .rating
+        await store.loadCachedSnapshots()
+        #expect(store.albums.map(\.id) == ["a", "z"])
+
+        await store.refresh(.albums)
+
+        #expect(store.albums.map(\.id) == ["z", "a"])
+    }
+
     @Test func refreshAlbums_usesSelectedDirectionAndKeepsItWhenSortChanges() async {
         let client = makeStubbedClient { _ in albumListResponse([("1", "Alpha"), ("2", "Zulu")]) }
         let store = makeStore(client: client)

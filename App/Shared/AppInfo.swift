@@ -4,6 +4,7 @@ import SwiftUI
 /// What the About screens say about the app.
 enum AppInfo {
     static let summary = String(localized: "A bare-essentials music player for your Navidrome library, made for intentional, album-first listening.")
+    static let affiliationDisclaimer = String(localized: "Plinket is an independently developed, unofficial client for Navidrome. It is not affiliated with or endorsed by the Navidrome project or its developers.")
     static let websiteURL = URL(string: "https://plinket.4z.nu")!
     static let privacyPolicyURL = websiteURL.appending(path: "privacy/")
 

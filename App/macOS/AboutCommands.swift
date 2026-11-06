@@ -17,7 +17,7 @@ struct AboutCommands: Commands {
         paragraph.paragraphSpacing = 6
         let font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
         let credits = NSMutableAttributedString(
-            string: AppInfo.summary + "\n",
+            string: AppInfo.summary + "\n\n" + AppInfo.affiliationDisclaimer + "\n",
             attributes: [.font: font, .foregroundColor: NSColor.labelColor, .paragraphStyle: paragraph]
         )
         let links = [

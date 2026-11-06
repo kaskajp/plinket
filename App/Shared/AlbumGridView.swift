@@ -129,6 +129,8 @@ private struct AlbumSortMenu: View {
             direction == .ascending ? "A–Z" : "Z–A"
         case .recentlyAdded, .recentlyPlayed, .year:
             direction == .ascending ? "Oldest First" : "Newest First"
+        case .rating:
+            direction == .ascending ? "Lowest First" : "Highest First"
         }
     }
 }
@@ -138,6 +140,7 @@ private extension AlbumSort {
         switch self {
         case .recentlyAdded: "Recently Added"
         case .recentlyPlayed: "Recently Played"
+        case .rating: "Rating"
         case .title: "Title"
         case .artist: "Artist"
         case .year: "Year"
