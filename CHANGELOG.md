@@ -6,6 +6,9 @@ Versions are shown as Version (Build), matching the app. Add notes under Unrelea
 
 ## [Unreleased]
 
+### Added
+- Ascending and descending album sorting, saved between launches, with missing values kept last.
+
 ## [1.0.0 (1)] - 2026-10-19
 
 First version of Plinket, an album-first client for Navidrome and other Subsonic API servers, on iPhone, iPad and Mac (iOS 27 and macOS 27).

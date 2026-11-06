@@ -8,8 +8,24 @@ public enum AlbumSort: String, CaseIterable, Codable, Sendable {
     case artist
     case year
 
+    public enum Direction: String, CaseIterable, Codable, Sendable {
+        case ascending
+        case descending
+    }
+
+    public var defaultDirection: Direction {
+        switch self {
+        case .title, .artist: .ascending
+        case .recentlyAdded, .year: .descending
+        }
+    }
+
     public func sorted(_ albums: [Album]) -> [Album] {
-        albums.sorted { comparison($0, $1) == .orderedAscending }
+        sorted(albums, direction: defaultDirection)
+    }
+
+    public func sorted(_ albums: [Album], direction: Direction) -> [Album] {
+        albums.sorted { comparison($0, $1, direction: direction) == .orderedAscending }
     }
 
     /// Oldest first, the way a discography reads; undated albums last.
@@ -19,28 +35,43 @@ public enum AlbumSort: String, CaseIterable, Codable, Sendable {
         }
     }
 
-    private func comparison(_ lhs: Album, _ rhs: Album) -> ComparisonResult {
-        let byTitle = Self.compareTitles(lhs, rhs)
+    private func comparison(_ lhs: Album, _ rhs: Album, direction: Direction) -> ComparisonResult {
         switch self {
         case .recentlyAdded:
-            return Self.compareNilsLast(lhs.created, rhs.created, descending: true).then(byTitle)
+            return Self.compareNilsLast(lhs.created, rhs.created, descending: direction == .descending)
+                .then(Self.compareTitles(lhs, rhs))
         case .title:
-            return byTitle
+            return Self.compareTitles(lhs, rhs, direction: direction)
         case .artist:
-            return Self.compareNilsLast(lhs.artist, rhs.artist, by: Self.compareText)
+            return Self.compareNilsLast(Self.sortText(lhs.artist), Self.sortText(rhs.artist)) {
+                Self.compareText($0, $1, direction: direction)
+            }
                 .then(Self.compareNilsLast(lhs.year, rhs.year, descending: false))
-                .then(byTitle)
+                .then(Self.compareTitles(lhs, rhs))
         case .year:
-            return Self.compareNilsLast(lhs.year, rhs.year, descending: true).then(byTitle)
+            return Self.compareNilsLast(lhs.year, rhs.year, descending: direction == .descending)
+                .then(Self.compareTitles(lhs, rhs))
         }
     }
 
-    private static func compareTitles(_ lhs: Album, _ rhs: Album) -> ComparisonResult {
-        compareText(lhs.sortName ?? lhs.name, rhs.sortName ?? rhs.name)
+    private static func compareTitles(
+        _ lhs: Album,
+        _ rhs: Album,
+        direction: Direction = .ascending
+    ) -> ComparisonResult {
+        compareNilsLast(sortText(lhs.sortName) ?? sortText(lhs.name), sortText(rhs.sortName) ?? sortText(rhs.name)) {
+            compareText($0, $1, direction: direction)
+        }
     }
 
-    private static func compareText(_ lhs: String, _ rhs: String) -> ComparisonResult {
-        lhs.localizedStandardCompare(rhs)
+    private static func sortText(_ text: String?) -> String? {
+        guard let text = text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
+        return text
+    }
+
+    private static func compareText(_ lhs: String, _ rhs: String, direction: Direction) -> ComparisonResult {
+        let comparison = lhs.localizedStandardCompare(rhs)
+        return direction == .descending ? comparison.reversed : comparison
     }
 
     private static func compareNilsLast<Value: Comparable>(

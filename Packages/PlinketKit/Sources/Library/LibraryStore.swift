@@ -16,6 +16,7 @@ public enum LibraryCollection: String, CaseIterable, Sendable {
 public final class LibraryStore {
     public static let defaultCacheDirectory = URL.cachesDirectory.appending(path: "Plinket/Library")
     static let albumSortDefaultsKey = "library.albumSort"
+    static let albumSortDirectionDefaultsKey = "library.albumSortDirection"
 
     public private(set) var albums: [Album] = []
     /// In A–Z index order, see ``ArtistIndex``.
@@ -31,7 +32,14 @@ public final class LibraryStore {
     public var albumSort: AlbumSort {
         didSet {
             defaults.set(albumSort.rawValue, forKey: Self.albumSortDefaultsKey)
-            albums = albumSort.sorted(albums)
+            albums = albumSort.sorted(albums, direction: albumSortDirection)
+        }
+    }
+
+    public var albumSortDirection: AlbumSort.Direction {
+        didSet {
+            defaults.set(albumSortDirection.rawValue, forKey: Self.albumSortDirectionDefaultsKey)
+            albums = albumSort.sorted(albums, direction: albumSortDirection)
         }
     }
 
@@ -66,6 +74,8 @@ public final class LibraryStore {
         starredFile = SnapshotFile(directory: cacheDirectory, name: LibraryCollection.starred.rawValue)
         let savedSort = defaults.string(forKey: Self.albumSortDefaultsKey).flatMap(AlbumSort.init(rawValue:))
         self.albumSort = savedSort ?? .recentlyAdded
+        self.albumSortDirection = defaults.string(forKey: Self.albumSortDirectionDefaultsKey)
+            .flatMap(AlbumSort.Direction.init(rawValue:)) ?? (savedSort ?? .recentlyAdded).defaultDirection
     }
 
     // MARK: - Collections
@@ -86,7 +96,7 @@ public final class LibraryStore {
         async let cachedPlaylists = playlistsFile.load()
         async let cachedStarred = starredFile.load()
         if let cachedAlbums = await cachedAlbums, albums.isEmpty {
-            albums = albumSort.sorted(cachedAlbums)
+            albums = albumSort.sorted(cachedAlbums, direction: albumSortDirection)
         }
         if let cachedArtists = await cachedArtists, artists.isEmpty {
             artists = ArtistIndex.sorted(cachedArtists)
@@ -238,7 +248,7 @@ public final class LibraryStore {
 
     private func fetchAlbums() async throws(SubsonicError) {
         let fetchedAlbums = try await client.allAlbums()
-        albums = albumSort.sorted(fetchedAlbums)
+        albums = albumSort.sorted(fetchedAlbums, direction: albumSortDirection)
         albumDetails.markAllStale()
         await albumsFile.save(fetchedAlbums)
     }

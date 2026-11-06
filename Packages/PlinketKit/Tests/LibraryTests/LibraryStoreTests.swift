@@ -29,13 +29,45 @@ struct LibraryStoreTests {
         #expect(offlineStore.albums.map(\.name) == ["Brighten"] && offlineStore.refreshError(for: .albums) == .http(statusCode: 503))
     }
 
-    @Test func albumSort_isRestoredOnNextLaunch() {
-        let client = makeOfflineClient()
-        makeStore(client: client).albumSort = .year
+    @Test(arguments: AlbumSort.Direction.allCases)
+    func albumSort_reordersImmediatelyAndRestoresCachedOrder(direction: AlbumSort.Direction) async {
+        let client = makeStubbedClient { _ in albumListResponse([("1", "Alpha"), ("2", "Zulu")]) }
+        let store = makeStore(client: client)
+        await store.refresh(.albums)
+        store.albumSort = .title
+        store.albumSortDirection = direction == .ascending ? .descending : .ascending
 
-        let relaunchedStore = makeStore(client: client)
+        store.albumSortDirection = direction
 
-        #expect(relaunchedStore.albumSort == .year)
+        let expected = direction == .ascending ? ["1", "2"] : ["2", "1"]
+        #expect(store.albums.map(\.id) == expected)
+        let relaunchedStore = makeStore(client: makeOfflineClient())
+        await relaunchedStore.loadCachedSnapshots()
+        #expect(relaunchedStore.albumSort == .title)
+        #expect(relaunchedStore.albumSortDirection == direction)
+        #expect(relaunchedStore.albums.map(\.id) == expected)
+    }
+
+    @Test(arguments: AlbumSort.allCases)
+    func albumSort_withoutSavedDirectionPreservesExistingOrder(sort: AlbumSort) {
+        defaults.set(sort.rawValue, forKey: "library.albumSort")
+
+        let store = makeStore(client: makeOfflineClient())
+
+        #expect(store.albumSort == sort)
+        #expect(store.albumSortDirection == sort.defaultDirection)
+    }
+
+    @Test func refreshAlbums_usesSelectedDirectionAndKeepsItWhenSortChanges() async {
+        let client = makeStubbedClient { _ in albumListResponse([("1", "Alpha"), ("2", "Zulu")]) }
+        let store = makeStore(client: client)
+        store.albumSortDirection = .descending
+        store.albumSort = .title
+
+        await store.refresh(.albums)
+
+        #expect(store.albumSortDirection == .descending)
+        #expect(store.albums.map(\.id) == ["2", "1"])
     }
 
     @Test func refreshArtists_persistsSnapshotForNextLaunch() async {

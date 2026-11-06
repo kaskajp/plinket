@@ -12,7 +12,7 @@ struct AlbumGridView: View {
             .navigationTitle("Albums")
             .toolbar {
                 ToolbarItem {
-                    AlbumSortMenu(selection: $library.albumSort)
+                    AlbumSortMenu(selection: $library.albumSort, direction: $library.albumSortDirection)
                 }
             }
             .refreshable { await library.refresh(.albums) }
@@ -97,15 +97,38 @@ struct AlbumTile: View {
 
 private struct AlbumSortMenu: View {
     @Binding var selection: AlbumSort
+    @Binding var direction: AlbumSort.Direction
 
     var body: some View {
-        Menu("Sort", systemImage: "arrow.up.arrow.down") {
+        Menu {
             Picker("Sort", selection: $selection) {
                 ForEach(AlbumSort.allCases, id: \.self) { sort in
                     Text(sort.title).tag(sort)
                 }
             }
             .pickerStyle(.inline)
+            Picker("Order", selection: $direction) {
+                ForEach(AlbumSort.Direction.allCases, id: \.self) { direction in
+                    Text(directionTitle(direction)).tag(direction)
+                }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            Label {
+                Text(directionTitle(direction))
+            } icon: {
+                Image(systemName: direction == .ascending ? "arrow.up" : "arrow.down")
+            }
+        }
+        .accessibilityLabel(Text("Sort: \(Text(selection.title)), \(Text(directionTitle(direction)))"))
+    }
+
+    private func directionTitle(_ direction: AlbumSort.Direction) -> LocalizedStringKey {
+        switch selection {
+        case .title, .artist:
+            direction == .ascending ? "A–Z" : "Z–A"
+        case .recentlyAdded, .year:
+            direction == .ascending ? "Oldest First" : "Newest First"
         }
     }
 }
