@@ -8,6 +8,7 @@ Versions are shown as Version (Build), matching the app. Add notes under Unrelea
 
 ### Added
 - Recently Played album sorting using the server's playback history, with unplayed albums last.
+- A branded launch screen on iPhone and iPad, with a matching startup screen on iOS and Mac while the saved library and queue are restored.
 
 ## [1.0.0 (1)] - 2026-10-19
 
