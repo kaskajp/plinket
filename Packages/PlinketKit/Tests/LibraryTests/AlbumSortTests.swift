@@ -4,6 +4,33 @@ import Subsonic
 import Testing
 
 struct AlbumSortTests {
+    @Test func rating_putsHighestRatingsFirstByDefault() {
+        let albums = [
+            Album(id: "low", name: "A", userRating: 1),
+            Album(id: "high", name: "Z", userRating: 5),
+        ]
+
+        let sorted = AlbumSort.rating.sorted(albums)
+
+        #expect(sorted.map(\.id) == ["high", "low"])
+    }
+
+    @Test(arguments: AlbumSort.Direction.allCases)
+    func rating_keepsUnratedLastAndBreaksTiesByTitle(direction: AlbumSort.Direction) {
+        let albums = [
+            Album(id: "missing", name: "B"),
+            Album(id: "high-z", name: "Z", userRating: 5),
+            Album(id: "low", name: "Low", userRating: 1),
+            Album(id: "zero", name: "A", userRating: 0),
+            Album(id: "high-a", name: "The Alpha", sortName: "Alpha", userRating: 5),
+        ]
+
+        let sorted = AlbumSort.rating.sorted(albums, direction: direction)
+
+        let rated = direction == .ascending ? ["low", "high-a", "high-z"] : ["high-a", "high-z", "low"]
+        #expect(sorted.map(\.id) == rated + ["zero", "missing"])
+    }
+
     @Test func recentlyPlayed_putsLatestPlaysFirstAndUnplayedLast() {
         let albums = [
             Album(id: "unplayed", name: "A"),
