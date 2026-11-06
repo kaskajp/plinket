@@ -18,6 +18,9 @@ struct AboutView: View {
                     Text(AppInfo.summary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 8)
+                    Text(AppInfo.affiliationDisclaimer)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 8)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
