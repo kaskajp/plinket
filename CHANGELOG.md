@@ -7,6 +7,7 @@ Versions are shown as Version (Build), matching the app. Add notes under Unrelea
 ## [Unreleased]
 
 ### Added
+- Persistent music downloads with Original, Opus and MP3 formats, offline playback, cellular and storage limits, and a download storage overview.
 - Ascending and descending album sorting, saved between launches, with missing values kept last.
 - Recently Played album sorting using the server's playback history, with unplayed albums last.
 - A branded launch screen on iPhone and iPad, with a matching startup screen on iOS and Mac while the saved library and queue are restored.

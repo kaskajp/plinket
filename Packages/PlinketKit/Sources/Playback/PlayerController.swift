@@ -25,6 +25,7 @@ public final class PlayerController {
 
     @ObservationIgnored private let engine: any PlaybackEngine
     @ObservationIgnored private let streamURL: @MainActor (Song) -> URL
+    @ObservationIgnored private let localURL: @MainActor (Song) -> URL?
     @ObservationIgnored private let scrobbler: Scrobbler?
     @ObservationIgnored private let queueStore: QueueStore?
     @ObservationIgnored private var loadedEntryID: UUID?
@@ -36,20 +37,26 @@ public final class PlayerController {
     public init(
         engine: any PlaybackEngine,
         streamURL: @escaping @MainActor (Song) -> URL,
+        localURL: @escaping @MainActor (Song) -> URL? = { _ in nil },
         scrobbler: Scrobbler? = nil,
         queueStore: QueueStore? = nil
     ) {
         self.engine = engine
         self.streamURL = streamURL
+        self.localURL = localURL
         self.scrobbler = scrobbler
         self.queueStore = queueStore
         engine.onEvent = { [weak self] event in self?.handle(event) }
     }
 
-    public convenience init(client: SubsonicClient, scrobbler: Scrobbler?, queueStore: QueueStore?) {
+    public convenience init(
+        client: SubsonicClient, scrobbler: Scrobbler?, queueStore: QueueStore?,
+        localURL: @escaping @MainActor (Song) -> URL? = { _ in nil }
+    ) {
         self.init(
             engine: QueuePlayerEngine(),
             streamURL: { client.streamURL(songID: $0.id) },
+            localURL: localURL,
             scrobbler: scrobbler,
             queueStore: queueStore
         )
@@ -246,7 +253,10 @@ public final class PlayerController {
     }
 
     private func playbackItem(for entry: PlayQueue<Song>.Entry) -> PlaybackItem {
-        PlaybackItem(id: entry.id, url: streamURL(entry.item), contentType: entry.item.contentType)
+        if let url = localURL(entry.item) {
+            return PlaybackItem(id: entry.id, url: url)
+        }
+        return PlaybackItem(id: entry.id, url: streamURL(entry.item), contentType: entry.item.contentType)
     }
 
     private func reportStartIfNeeded() {

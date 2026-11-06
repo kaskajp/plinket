@@ -1,3 +1,4 @@
+import Downloads
 import Library
 import Playback
 import Subsonic
@@ -20,13 +21,21 @@ struct PlayableSong<Label: View>: View {
 
     @Environment(\.playbackActions) private var playbackActions
     @Environment(PlayerController.self) private var player
+    @Environment(DownloadManager.self) private var downloads
 
     var body: some View {
         Button {
             playbackActions.play(songs, index)
         } label: {
-            label
-                .environment(\.songPlaybackState, playbackState)
+            HStack {
+                label
+                    .environment(\.songPlaybackState, playbackState)
+                if downloads.localURL(for: songs[index].id) != nil {
+                    Image(systemName: "arrow.down.circle.fill")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Downloaded")
+                }
+            }
         }
         .buttonStyle(.plain)
         .contextMenu {
@@ -57,6 +66,7 @@ struct SongMenuItems: View {
         FavoriteButton(isFavorite: library.isStarred(song)) {
             library.toggleFavorite(song)
         }
+        DownloadButton(songs: [song])
     }
 }
 

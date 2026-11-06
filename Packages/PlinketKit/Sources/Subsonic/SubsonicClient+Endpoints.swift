@@ -147,6 +147,15 @@ extension SubsonicClient {
         ])
     }
 
+    /// Originals use the download endpoint; other formats require server-side transcoding.
+    public nonisolated func downloadURL(songID: Song.ID, format: DownloadFormat) -> URL {
+        let songQuery = [URLQueryItem(name: QueryName.id, value: songID)]
+        guard format != .original else { return url(for: .download, query: songQuery) }
+        return url(for: .stream, query: songQuery + [
+            URLQueryItem(name: QueryName.streamFormat, value: format.rawValue),
+        ])
+    }
+
     /// Cover art scaled server-side to `size` pixels, or the original when `size` is `nil`.
     public nonisolated func coverArtURL(id: String, size: Int? = nil) -> URL {
         var query = [URLQueryItem(name: QueryName.id, value: id)]

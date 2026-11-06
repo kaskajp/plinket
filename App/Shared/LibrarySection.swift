@@ -8,9 +8,10 @@ enum LibrarySection: String, CaseIterable, Identifiable, Hashable {
     case artists
     case playlists
     case favorites
+    case downloads
     case search
 
-    static let sidebarSections: [LibrarySection] = [.albums, .artists, .playlists, .favorites]
+    static let sidebarSections: [LibrarySection] = [.albums, .artists, .playlists, .favorites, .downloads]
 
     var id: Self { self }
 
@@ -20,6 +21,7 @@ enum LibrarySection: String, CaseIterable, Identifiable, Hashable {
         case .artists: "Artists"
         case .playlists: "Playlists"
         case .favorites: "Favorites"
+        case .downloads: "Downloads"
         case .search: "Search"
         }
     }
@@ -30,6 +32,7 @@ enum LibrarySection: String, CaseIterable, Identifiable, Hashable {
         case .artists: "music.mic"
         case .playlists: "music.note.list"
         case .favorites: "star"
+        case .downloads: "arrow.down.circle"
         case .search: "magnifyingglass"
         }
     }
@@ -41,7 +44,7 @@ enum LibrarySection: String, CaseIterable, Identifiable, Hashable {
         case .artists: .artists
         case .playlists: .playlists
         case .favorites: .starred
-        case .search: nil
+        case .search, .downloads: nil
         }
     }
 }
@@ -66,6 +69,8 @@ struct LibrarySectionView: View {
             PlaylistListView()
         case .favorites:
             FavoritesView()
+        case .downloads:
+            DownloadsView()
         case .search:
             SearchView()
         }

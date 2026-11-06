@@ -1,3 +1,4 @@
+import Downloads
 import Foundation
 import Library
 import Observation
@@ -14,6 +15,7 @@ struct SignedInSession: Identifiable {
     let library: LibraryStore
     let imageCache: ImageCache
     let player: PlayerController
+    let downloads: DownloadManager
     let scrobbler: Scrobbler
     let queueStore: QueueStore
     let nowPlaying: NowPlayingBridge
@@ -30,10 +32,15 @@ struct SignedInSession: Identifiable {
         self.library = library
         let imageCache = ImageCache(client: client)
         self.imageCache = imageCache
+        let downloads = DownloadManager(client: client)
+        self.downloads = downloads
         let scrobbler = Scrobbler(submitter: client)
         self.scrobbler = scrobbler
         queueStore = QueueStore()
-        let player = PlayerController(client: client, scrobbler: scrobbler, queueStore: queueStore)
+        let player = PlayerController(
+            client: client, scrobbler: scrobbler, queueStore: queueStore,
+            localURL: { downloads.localURL(for: $0.id) }
+        )
         self.player = player
         nowPlaying = NowPlayingBridge(player: player) { coverArtID in
             try? await imageCache.image(coverArtID: coverArtID, pixelSize: SignedInSession.nowPlayingArtworkPixelSize)
@@ -54,13 +61,14 @@ struct SignedInSession: Identifiable {
 
     private static let nowPlayingArtworkPixelSize = 1024
 
-    /// Stops playback and deletes everything this session stored on disk.
+    /// Stops playback and clears session caches; offline downloads stay scoped to this account.
     func tearDown() async {
         restoration.cancel()
         startup.cancel()
         await restoration.value
         nowPlaying.invalidate()
         player.shutDown()
+        await downloads.shutDown()
         await queueStore.remove()
         await scrobbler.removePending()
         await library.removeCachedData()
