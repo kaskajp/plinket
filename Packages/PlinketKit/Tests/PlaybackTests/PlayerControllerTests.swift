@@ -8,6 +8,45 @@ struct PlayerControllerTests {
     private let engine = FakeEngine()
     private let songs = [makeSong("a"), makeSong("b"), makeSong("c")]
 
+    @Test func downloadedSongsUseLocalFilesForCurrentAndPreloadedItems() {
+        let local = URL(filePath: "/offline/song.mp3")
+        let remote = URL(string: "https://music.example/stream")!
+        let player = PlayerController(
+            engine: engine, streamURL: { _ in remote },
+            localURL: { $0.id == "c" ? nil : local }
+        )
+        let sourceSongs = [Song(id: "a", title: "Original", contentType: "audio/flac"), makeSong("b"), makeSong("c")]
+        player.play(songs: sourceSongs)
+
+        #expect(engine.loadedItem?.url == local)
+        #expect(engine.preloadedItem?.url == local)
+        #expect(engine.loadedItem?.contentType == nil)
+
+        player.next()
+
+        #expect(engine.preloadedItem?.url == remote)
+    }
+
+    @Test func restoredQueueUsesDownloadedFilesWithoutStreaming() async {
+        let directory = makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = QueueStore(directory: directory)
+        let original = PlayerController(engine: FakeEngine(), streamURL: { _ in URL(filePath: "/old") }, queueStore: store)
+        original.play(songs: songs)
+        await original.saveQueue()
+        let local = URL(filePath: "/offline/song.mp3")
+        let restored = PlayerController(
+            engine: engine, streamURL: { _ in Issue.record("Downloaded queue must not stream"); return URL(filePath: "/unexpected") },
+            localURL: { _ in local }, queueStore: store
+        )
+
+        await restored.restoreSavedQueue()
+
+        #expect(restored.currentSong?.id == "a")
+        #expect(engine.loadedItem?.url == local)
+        #expect(!restored.isPlaying)
+    }
+
     @Test func naturalAdvance_movesQueueWithoutReloading() {
         let player = makePlayer()
         player.play(songs: songs)

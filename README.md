@@ -20,6 +20,26 @@ Tests for the logic package:
 swift test --package-path Packages/PlinketKit
 ```
 
+## Offline listening
+Download an album from its track list or a song from its context menu. Completed
+downloads appear in **Downloads** and play from local storage, including after a
+restart without a network connection. They are kept in Application Support (not
+the evictable cache), separately for each server/account, and excluded from backups.
+
+Settings → Downloads controls downloading, Original/Opus/MP3 encoding, cellular
+access (off by default), and the storage limit (5 GB by default). Original uses the
+server's original file; Opus/MP3 require server transcoding and device playback
+support. Unsupported or incorrectly transcoded responses are reported, not saved
+as completed songs. Hotspots and other expensive connections follow the cellular
+setting. Transfers are foreground work, not a background download service; a lost
+connection pauses the queue, and interrupted transfers restart rather than resume
+partway. Unfinished transfers are discarded on app restart and can be downloaded
+again. Disabling downloads cancels pending work but keeps completed files.
+
+The storage overview counts completed songs and their albums/artists. Delete all
+downloads requires confirmation and removes local music only. Signing out stops
+transfers but keeps completed downloads for the next sign-in to that same account.
+
 ## Layout
 ```
 App/                 SwiftUI app (one multiplatform target)
@@ -30,6 +50,7 @@ Packages/PlinketKit/
   Subsonic/          API client, token auth, models, Keychain credentials
   Library/           cached library store, star/unstar, image cache
   Playback/          queue, AVQueuePlayer engine, Now Playing, scrobbling
+  Downloads/         durable offline files, settings, storage and network policy
 ```
 
 ## Releasing

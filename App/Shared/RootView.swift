@@ -1,3 +1,4 @@
+import Downloads
 import SwiftUI
 
 /// Restores local state behind the splash screen, then shows sign-in or the library.
@@ -34,9 +35,11 @@ struct RootView: View {
             LibraryRootView()
                 .environment(session.library)
                 .environment(session.player)
+                .environment(session.downloads)
                 .environment(\.imageCache, session.imageCache)
                 .environment(\.playbackActions, PlaybackActions(player: session.player))
                 .favoriteErrorAlert(library: session.library)
+                .downloadErrorAlert(downloads: session.downloads)
                 #if DEBUG
                 .task(id: session.id) {
                     await session.startup.value

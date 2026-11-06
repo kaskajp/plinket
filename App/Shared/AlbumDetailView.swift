@@ -32,6 +32,9 @@ struct AlbumDetailView: View {
                 .buttonBorderShape(.circle)
             }
             .listRowSeparator(.hidden)
+            if !songs.isEmpty {
+                DownloadButton(songs: songs)
+            }
             if let detail {
                 AlbumTracks(detail: detail)
             } else if let loadError {

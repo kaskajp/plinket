@@ -24,6 +24,26 @@ struct URLCompositionTests {
         #expect(query["id"] == "song-1" && query["format"] == "raw")
     }
 
+    @Test func downloadURL_requestsOriginalWithoutTranscoding() {
+        let client = SubsonicClient(config: makeConfig(), password: testPassword)
+
+        let url = client.downloadURL(songID: "song-1", format: .original)
+
+        #expect(url.lastPathComponent == "download")
+        #expect(queryItems(of: url)["id"] == "song-1")
+        #expect(queryItems(of: url)["format"] == nil)
+    }
+
+    @Test(arguments: [DownloadFormat.opus, .mp3])
+    func downloadURL_requestsSelectedTranscoding(format: DownloadFormat) {
+        let client = SubsonicClient(config: makeConfig(), password: testPassword)
+
+        let url = client.downloadURL(songID: "song-1", format: format)
+
+        #expect(url.lastPathComponent == "stream")
+        #expect(queryItems(of: url)["format"] == format.rawValue)
+    }
+
     @Test func url_keepsServerSubpath() {
         let client = SubsonicClient(config: makeConfig(path: "/music"), password: testPassword)
 

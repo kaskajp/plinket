@@ -24,6 +24,7 @@ struct LibraryRootView: View {
             sectionTab(.artists)
             sectionTab(.playlists)
             sectionTab(.favorites)
+            sectionTab(.downloads)
             Tab(value: LibrarySection.search, role: .search) {
                 SectionNavigationStack(section: .search) {
                     LibrarySectionView(section: .search)

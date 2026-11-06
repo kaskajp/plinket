@@ -273,7 +273,7 @@ def make_handler(library):
             query = parse_qs(url.query)
             if endpoint == "getCoverArt":
                 return self.send_file(library.directory / "covers" / f"{query['id'][0]}.jpg", "image/jpeg")
-            if endpoint == "stream":
+            if endpoint in ("stream", "download"):
                 song = library.songs.get(query.get("id", [""])[0])
                 return self.send_data(silence(song["duration"] if song else 1), "audio/wav")
             try:

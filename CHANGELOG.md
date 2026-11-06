@@ -7,6 +7,7 @@ Versions are shown as Version (Build), matching the app. Add notes under Unrelea
 ## [Unreleased]
 
 ### Added
+- Persistent music downloads with Original, Opus and MP3 formats, offline playback, cellular and storage limits, and a download storage overview.
 - Clarification in About Plinket on iPhone, iPad and Mac that Plinket is unofficial and not affiliated with or endorsed by Navidrome.
 - Album sorting by your server rating, with highest/lowest-first ordering and unrated albums last.
 - Ascending and descending album sorting, saved between launches, with missing values kept last.

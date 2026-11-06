@@ -116,6 +116,7 @@ enum Endpoint: String {
     static let pathPrefix = "rest"
 
     case ping
+    case download
     case getAlbumList2
     case getAlbum
     case getArtists

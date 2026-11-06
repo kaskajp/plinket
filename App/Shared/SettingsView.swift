@@ -11,6 +11,9 @@ struct SettingsView: View {
                     LabeledContent("Address", value: config.baseURL.absoluteString)
                     LabeledContent("Username", value: config.username)
                 }
+                if let downloads = appModel.session?.downloads {
+                    DownloadSettingsSections(downloads: downloads)
+                }
                 Section {
                     Button("Sign Out", role: .destructive) {
                         Task { await appModel.signOut() }
