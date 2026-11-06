@@ -127,6 +127,40 @@ h1 {
     text-decoration: none;
 }
 
+.release {
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    overflow-wrap: anywhere;
+}
+
+.release > h2 {
+    margin-top: 0;
+}
+
+.release-notes img,
+.release-notes video {
+    max-width: 100%;
+    height: auto;
+}
+
+.release-notes pre,
+.release-notes table {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.release-notes table {
+    display: block;
+    overflow-wrap: normal;
+}
+
+.release-notes pre {
+    padding: 16px;
+    background: var(--surface);
+    border-radius: 8px;
+}
+
 footer {
     margin-top: 64px;
     padding-top: 24px;
@@ -137,5 +171,6 @@ footer {
 }
 
 footer a {
+    display: inline-block;
     margin: 0 10px;
 }
