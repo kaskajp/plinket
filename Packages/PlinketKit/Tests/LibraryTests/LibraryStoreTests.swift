@@ -29,30 +29,67 @@ struct LibraryStoreTests {
         #expect(offlineStore.albums.map(\.name) == ["Brighten"] && offlineStore.refreshError(for: .albums) == .http(statusCode: 503))
     }
 
-    @Test func albumSort_isRestoredOnNextLaunch() {
-        let client = makeOfflineClient()
-        makeStore(client: client).albumSort = .year
+    @Test(arguments: AlbumSort.Direction.allCases)
+    func albumSort_reordersImmediatelyAndRestoresCachedOrder(direction: AlbumSort.Direction) async {
+        let client = makeStubbedClient { _ in albumListResponse([("1", "Alpha"), ("2", "Zulu")]) }
+        let store = makeStore(client: client)
+        await store.refresh(.albums)
+        store.albumSort = .title
+        store.albumSortDirection = direction == .ascending ? .descending : .ascending
 
-        let relaunchedStore = makeStore(client: client)
+        store.albumSortDirection = direction
 
-        #expect(relaunchedStore.albumSort == .year)
+        let expected = direction == .ascending ? ["1", "2"] : ["2", "1"]
+        #expect(store.albums.map(\.id) == expected)
+        let relaunchedStore = makeStore(client: makeOfflineClient())
+        await relaunchedStore.loadCachedSnapshots()
+        #expect(relaunchedStore.albumSort == .title)
+        #expect(relaunchedStore.albumSortDirection == direction)
+        #expect(relaunchedStore.albums.map(\.id) == expected)
     }
 
-    @Test func recentlyPlayed_reordersLoadedAlbumsAndSurvivesRelaunch() async {
+    @Test(arguments: AlbumSort.allCases)
+    func albumSort_withoutSavedDirectionPreservesExistingOrder(sort: AlbumSort) {
+        defaults.set(sort.rawValue, forKey: "library.albumSort")
+
+        let store = makeStore(client: makeOfflineClient())
+
+        #expect(store.albumSort == sort)
+        #expect(store.albumSortDirection == sort.defaultDirection)
+    }
+
+    @Test func refreshAlbums_usesSelectedDirectionAndKeepsItWhenSortChanges() async {
+        let client = makeStubbedClient { _ in albumListResponse([("1", "Alpha"), ("2", "Zulu")]) }
+        let store = makeStore(client: client)
+        store.albumSortDirection = .descending
+        store.albumSort = .title
+
+        await store.refresh(.albums)
+
+        #expect(store.albumSortDirection == .descending)
+        #expect(store.albums.map(\.id) == ["2", "1"])
+    }
+
+    @Test(arguments: AlbumSort.Direction.allCases)
+    func recentlyPlayed_reordersLoadedAlbumsAndSurvivesRelaunch(direction: AlbumSort.Direction) async {
         let client = makeStubbedClient { _ in
             subsonicResponse("albumList2", json: #"{"album":[{"id":"older","name":"A","played":"2026-10-15T12:00:00Z"},{"id":"latest","name":"Z","played":"2026-10-16T12:00:00.123456789Z"},{"id":"unplayed","name":"B"}]}"#)
         }
         let store = makeStore(client: client)
         store.albumSort = .title
+        store.albumSortDirection = .ascending
         await store.refresh(.albums)
         #expect(store.albums.map(\.id) == ["older", "unplayed", "latest"])
 
         store.albumSort = .recentlyPlayed
+        store.albumSortDirection = direction
 
-        #expect(store.albums.map(\.id) == ["latest", "older", "unplayed"])
+        let playedIDs = direction == .ascending ? ["older", "latest"] : ["latest", "older"]
+        #expect(store.albums.map(\.id) == playedIDs + ["unplayed"])
         let relaunchedStore = makeStore(client: makeOfflineClient())
         await relaunchedStore.loadCachedSnapshots()
         #expect(relaunchedStore.albumSort == .recentlyPlayed)
+        #expect(relaunchedStore.albumSortDirection == direction)
         #expect(relaunchedStore.albums == store.albums)
     }
 
