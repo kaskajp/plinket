@@ -4,6 +4,8 @@ All notable changes to Plinket are documented here. The format follows [Keep a C
 
 Versions are shown as Version (Build), matching the app. Add notes under Unreleased as you go; `scripts/release.sh` files them under the version and build set in Xcode when you release.
 
+The public website changelog is generated from published [GitHub release notes](https://github.com/kaskajp/plinket/releases), not this file. See [Releasing](README.md#releasing) for publishing and updating those notes.
+
 ## [Unreleased]
 
 ### Added

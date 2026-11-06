@@ -36,8 +36,37 @@ Packages/PlinketKit/
 Add notes under `## [Unreleased]` in `CHANGELOG.md` as you go. To release:
 1. Set Version and Build in Xcode (target → General → Identity).
 2. With everything committed, run `scripts/release.sh`, then `git push --follow-tags`.
+3. On [GitHub Releases](https://github.com/kaskajp/plinket/releases/new), select the pushed tag, use the app version and build as the title, and copy that version's notes from `CHANGELOG.md` into the release description. Review the notes and publish the release. Leave **Set as a pre-release** unchecked for a public release.
 
 The script reads Version and Build from the Xcode project, files the Unreleased notes under `## [Version (Build)] - date`, copies the numbers into `project.yml` so the next `xcodegen generate` keeps them, then commits and tags `vVersion-build.Build`. Run it before regenerating the project, or the regenerated project resets Version and Build to what `project.yml` has.
+
+Published GitHub release notes are the source for the [website changelog](https://plinket.4z.nu/changelog/). `CHANGELOG.md` remains the development log; the website never reads it. To correct public notes, edit the release description on GitHub and save. Publishing or editing a release automatically rebuilds the website; drafts and prereleases are excluded. Unpublishing or deleting a release also rebuilds the page. No website edit is needed, and before the first release the page shows an empty state.
+
+## Website
+
+The static source lives in `docs/`. The **Deploy website** workflow builds `build/site/` with `scripts/build-site.py`, using the GitHub API's rendered Markdown for release notes, then deploys the artifact to GitHub Pages. It fetches every page of releases and orders public releases by publication date, newest first. API failures stop the build and leave the previous deployment intact. Pull requests run the tests and build without deploying.
+
+One-time setup after merging the workflow: in **Settings → Pages → Build and deployment → Source**, select **GitHub Actions** instead of **Deploy from a branch**. Keep the existing custom domain, `plinket.4z.nu`. Run **Actions → Deploy website → Run workflow** on `main` for the first deployment. The workflow uses the built-in `GITHUB_TOKEN`; no personal token or additional secret is needed.
+
+The site rebuilds when `docs/` or the generator/workflow changes on `main`, when a release is published, edited, unpublished or deleted, and on manual runs. Release events dispatch a fresh run on the default branch: this uses the current website source and satisfies the existing `github-pages` environment restriction to branch deployments. The dispatch job has `actions: write`; only the deploy job has `pages: write` and `id-token: write`. If a release is published by another workflow, that workflow must explicitly dispatch **Deploy website**: GitHub does not trigger another workflow for release events created using `GITHUB_TOKEN`.
+
+If an update fails, open the failed **Deploy website** run in Actions and inspect its logs. After fixing the cause, choose **Re-run all jobs**, or start a fresh **Run workflow** on `main`. A fresh run fetches the current release notes again. From an authenticated GitHub CLI:
+
+```sh
+gh workflow run pages.yml --ref main --repo kaskajp/plinket
+gh run list --workflow pages.yml --repo kaskajp/plinket
+gh run view <run-id> --log-failed --repo kaskajp/plinket
+```
+
+To build locally (Python 3.12+ and an authenticated [GitHub CLI](https://cli.github.com/)):
+
+```sh
+python3 -m unittest discover -s scripts -p 'test_build_site.py'
+python3 scripts/build-site.py
+python3 -m http.server 8000 --directory build/site
+```
+
+Open `http://localhost:8000/changelog/`. Generated files stay in the ignored `build/` directory; do not copy them back into `docs/`.
 
 ## App Store art
 `scripts/render-store-art.swift` renders the product page header and search results images into `build/store-art/`. The tagline is set at the top of the script.
