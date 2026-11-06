@@ -4,6 +4,7 @@ import Subsonic
 /// How the album grid is ordered. Sorting happens locally so switching is instant.
 public enum AlbumSort: String, CaseIterable, Codable, Sendable {
     case recentlyAdded
+    case recentlyPlayed
     case title
     case artist
     case year
@@ -24,6 +25,8 @@ public enum AlbumSort: String, CaseIterable, Codable, Sendable {
         switch self {
         case .recentlyAdded:
             return Self.compareNilsLast(lhs.created, rhs.created, descending: true).then(byTitle)
+        case .recentlyPlayed:
+            return Self.compareNilsLast(lhs.played, rhs.played, descending: true).then(byTitle)
         case .title:
             return byTitle
         case .artist:
