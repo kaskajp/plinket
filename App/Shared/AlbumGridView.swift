@@ -114,6 +114,7 @@ private extension AlbumSort {
     var title: LocalizedStringKey {
         switch self {
         case .recentlyAdded: "Recently Added"
+        case .recentlyPlayed: "Recently Played"
         case .title: "Title"
         case .artist: "Artist"
         case .year: "Year"

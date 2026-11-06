@@ -23,6 +23,27 @@ struct ResponseDecodingTests {
         #expect(created.timeIntervalSince1970.rounded(.down) == 1_743_028_009)
     }
 
+    @Test func albumList_decodesLastPlayedDates() async throws {
+        let client = try makeStubbedClient(fixture: "getAlbumList2")
+
+        let albums = try await client.albumList(.newest)
+
+        let played = try #require(albums.first?.played)
+        let expected = try Date.ISO8601FormatStyle(includingFractionalSeconds: true).parse("2026-10-16T20:14:21.929Z")
+        #expect(played == expected)
+    }
+
+    @Test func albumList_allowsMissingLastPlayedDate() async throws {
+        let client = makeStubbedClient { _ in
+            StubURLProtocol.StubResponse(body: albumListBody(ids: ["unplayed"]))
+        }
+
+        let albums = try await client.albumList(.newest)
+
+        let album = try #require(albums.first)
+        #expect(album.played == nil)
+    }
+
     @Test func albumList_returnsEmptyWhenServerOmitsAlbumKey() async throws {
         let client = try makeStubbedClient(fixture: "emptyAlbumList2")
 
