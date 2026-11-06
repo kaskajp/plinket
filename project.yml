@@ -47,7 +47,6 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
-        CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]: App/Resources/Plinket-iOS-CarPlay.entitlements
-        CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]: App/Resources/Plinket-iOS.entitlements
+        CODE_SIGN_ENTITLEMENTS[sdk=iphone*]: App/Resources/Plinket-iOS.entitlements
         CODE_SIGN_ENTITLEMENTS[sdk=macosx*]: App/Resources/Plinket-macOS.entitlements
         ENABLE_HARDENED_RUNTIME[sdk=macosx*]: YES
