@@ -15,6 +15,15 @@ struct SearchView: View {
 
 /// Artists, albums and songs matching `query`, searched once typing pauses.
 struct SearchResultsView: View {
+    let query: String
+
+    var body: some View {
+        SearchRequestView(query: query)
+            .id(query)
+    }
+}
+
+private struct SearchRequestView: View {
     private static let typingPause = Duration.milliseconds(300)
 
     let query: String
@@ -22,10 +31,11 @@ struct SearchResultsView: View {
     @Environment(LibraryStore.self) private var library
     @State private var result: SearchResult?
     @State private var searchError: SubsonicError?
+    @State private var attempt = 0
 
     var body: some View {
         content
-            .task(id: query) { await search() }
+            .task(id: attempt) { await search() }
     }
 
     @ViewBuilder
@@ -33,7 +43,18 @@ struct SearchResultsView: View {
         if query.trimmingCharacters(in: .whitespaces).isEmpty {
             ContentUnavailableView("Search Your Library", systemImage: "magnifyingglass", description: Text("Find artists, albums and songs."))
         } else if let searchError {
-            ContentUnavailableView("Couldn’t Search", systemImage: "exclamationmark.triangle", description: Text(searchError.localizedDescription))
+            ContentUnavailableView {
+                Label("Couldn’t Search", systemImage: "exclamationmark.triangle")
+            } description: {
+                Text(searchError.localizedDescription)
+            } actions: {
+                Button("Try Again") {
+                    guard self.searchError != nil else { return }
+                    self.searchError = nil
+                    result = nil
+                    attempt += 1
+                }
+            }
         } else if let result {
             if result.isEmpty {
                 ContentUnavailableView.search(text: query)
@@ -45,7 +66,6 @@ struct SearchResultsView: View {
         }
     }
 
-    /// `task(id:)` cancels the previous search whenever `query` changes, which also ends its pause early.
     private func search() async {
         do {
             try await Task.sleep(for: Self.typingPause)
@@ -53,7 +73,9 @@ struct SearchResultsView: View {
             return
         }
         do {
-            result = try await library.search(query)
+            let fetched = try await library.search(query)
+            guard !Task.isCancelled else { return }
+            result = fetched
             searchError = nil
         } catch {
             guard !Task.isCancelled else { return }
