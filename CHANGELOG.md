@@ -9,6 +9,7 @@ The public website changelog is generated from published [GitHub release notes](
 ## [Unreleased]
 
 ### Added
+- Report a Problem and What’s New links in About Plinket on iPhone, iPad and Mac.
 - Persistent music downloads with Original, Opus and MP3 formats, offline playback, cellular and storage limits, and a download storage overview.
 - Clarification in About Plinket on iPhone, iPad and Mac that Plinket is unofficial and not affiliated with or endorsed by Navidrome.
 - Album sorting by your server rating, with highest/lowest-first ordering and unrated albums last.
