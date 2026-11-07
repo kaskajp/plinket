@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Replaces About Plinket so the standard panel also shows what the app is and links to its website and privacy policy.
+/// Adds the app's description and project and support links to the standard About panel.
 struct AboutCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .appInfo) {
@@ -23,10 +23,13 @@ struct AboutCommands: Commands {
         let links = [
             (String(localized: "Visit Website"), AppInfo.websiteURL),
             (String(localized: "Privacy Policy"), AppInfo.privacyPolicyURL),
+            (String(localized: "Report a Problem"), AppInfo.reportProblemURL),
+            (String(localized: "What’s New"), AppInfo.changelogURL),
         ]
         for (index, (title, url)) in links.enumerated() {
             if index > 0 {
-                credits.append(NSAttributedString(string: "  ·  ", attributes: [.font: font, .foregroundColor: NSColor.secondaryLabelColor, .paragraphStyle: paragraph]))
+                let separator = index.isMultiple(of: 2) ? "\n" : "  ·  "
+                credits.append(NSAttributedString(string: separator, attributes: [.font: font, .foregroundColor: NSColor.secondaryLabelColor, .paragraphStyle: paragraph]))
             }
             credits.append(NSAttributedString(string: title, attributes: [.font: font, .link: url, .paragraphStyle: paragraph]))
         }
