@@ -3,6 +3,20 @@ import Testing
 @testable import Subsonic
 
 struct ResponseDecodingTests {
+    @Test func albumList_decodesOptionalGenreAndMoodMetadata() async throws {
+        let client = makeStubbedClient { _ in
+            StubURLProtocol.StubResponse(body: Data(#"{"subsonic-response":{"status":"ok","albumList2":{"album":[{"id":"multi","name":"Multi","genre":"Rock","genres":[{"name":"Rock"},{"name":"Jazz"}],"moods":["Calm","Slow"]},{"id":"legacy","name":"Legacy","genre":"Folk"},{"id":"empty","name":"Empty","genres":[],"moods":[]}]}}}"#.utf8))
+        }
+
+        let albums = try await client.albumList(.newest)
+
+        #expect(albums[0].genres?.map(\.name) == ["Rock", "Jazz"])
+        #expect(albums[0].moods == ["Calm", "Slow"])
+        #expect(albums[1].genre == "Folk")
+        #expect(albums[1].genres == nil && albums[1].moods == nil)
+        #expect(albums[2].genres == [] && albums[2].moods == [])
+    }
+
     @Test func albumList_decodesPersonalRatingsAndAllowsUnratedAlbums() async throws {
         let client = makeStubbedClient { _ in
             StubURLProtocol.StubResponse(body: Data(#"{"subsonic-response":{"status":"ok","version":"1.16.1","albumList2":{"album":[{"id":"rated","name":"Rated","userRating":4,"averageRating":2.5},{"id":"zero","name":"Zero","userRating":0},{"id":"missing","name":"Missing"}]}}}"#.utf8))

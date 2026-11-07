@@ -12,6 +12,8 @@ public struct Album: Codable, Sendable, Hashable, Identifiable {
     public let duration: Int?
     public let year: Int?
     public let genre: String?
+    public let genres: [AlbumGenre]?
+    public let moods: [String]?
     public let created: Date?
     public let played: Date?
     public let userRating: Int?
@@ -35,7 +37,9 @@ public struct Album: Codable, Sendable, Hashable, Identifiable {
         played: Date? = nil,
         starred: Date? = nil,
         sortName: String? = nil,
-        userRating: Int? = nil
+        userRating: Int? = nil,
+        genres: [AlbumGenre]? = nil,
+        moods: [String]? = nil
     ) {
         self.id = id
         self.name = name
@@ -46,6 +50,8 @@ public struct Album: Codable, Sendable, Hashable, Identifiable {
         self.duration = duration
         self.year = year
         self.genre = genre
+        self.genres = genres
+        self.moods = moods
         self.created = created
         self.played = played
         self.userRating = userRating
@@ -54,9 +60,18 @@ public struct Album: Codable, Sendable, Hashable, Identifiable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, name, artist, songCount, duration, year, genre, created, played, starred, sortName, userRating
+        case id, name, artist, songCount, duration, year, genre, genres, moods, created, played, starred, sortName, userRating
         case artistID = "artistId"
         case coverArtID = "coverArt"
+    }
+}
+
+/// A genre from OpenSubsonic's multi-value album metadata.
+public struct AlbumGenre: Codable, Sendable, Hashable {
+    public let name: String
+
+    public init(name: String) {
+        self.name = name
     }
 }
 
