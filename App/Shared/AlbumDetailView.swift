@@ -19,7 +19,7 @@ struct AlbumDetailView: View {
                 coverArtID: shownAlbum.coverArtID,
                 title: shownAlbum.name,
                 subtitle: shownAlbum.artist,
-                caption: shownAlbum.yearText,
+                caption: headerCaption(detail: detail),
                 canPlay: !songs.isEmpty,
                 play: { playbackActions.play(songs, 0) },
                 shuffle: { playbackActions.shuffle(songs) }
@@ -52,6 +52,15 @@ struct AlbumDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .task(id: album.id) { await loadDetail() }
+    }
+
+    private func headerCaption(detail: AlbumDetail?) -> String? {
+        let summary = AlbumSummary(album: album, detail: detail)
+        let parts = [
+            detail?.album.yearText ?? album.yearText,
+            songCountAndDuration(songCount: summary.songCount, duration: summary.duration),
+        ].compactMap(\.self)
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     private func loadDetail() async {
