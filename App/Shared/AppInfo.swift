@@ -7,6 +7,8 @@ enum AppInfo {
     static let affiliationDisclaimer = String(localized: "Plinket is an independently developed, unofficial client for Navidrome. It is not affiliated with or endorsed by the Navidrome project or its developers.")
     static let websiteURL = URL(string: "https://plinket.4z.nu")!
     static let privacyPolicyURL = websiteURL.appending(path: "privacy/")
+    static let reportProblemURL = URL(string: "https://github.com/kaskajp/plinket/issues/new")!
+    static let changelogURL = websiteURL.appending(path: "changelog/")
 
     /// "Version 0.1.0 (1)", from the bundle.
     static var versionDescription: String {

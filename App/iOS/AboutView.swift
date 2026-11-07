@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The app's icon, version and description, with links to its website and privacy policy.
+/// The app's icon, version and description, with project and support links.
 struct AboutView: View {
     private let logoSize: CGFloat = 88
 
@@ -32,6 +32,12 @@ struct AboutView: View {
                 }
                 Link(destination: AppInfo.privacyPolicyURL) {
                     Label("Privacy Policy", systemImage: "hand.raised")
+                }
+                Link(destination: AppInfo.reportProblemURL) {
+                    Label("Report a Problem", systemImage: "exclamationmark.bubble")
+                }
+                Link(destination: AppInfo.changelogURL) {
+                    Label("What’s New", systemImage: "sparkles")
                 }
             }
         }
