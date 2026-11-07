@@ -56,12 +56,16 @@ final class FakeEngine: PlaybackEngine {
     private(set) var preloadedItem: PlaybackItem?
     private(set) var isPlaying = false
     private(set) var lastSeekPosition: TimeInterval?
+    var buffersOnLoad = false
 
     func load(_ current: PlaybackItem, startingAt position: TimeInterval, next: PlaybackItem?) {
         loadCount += 1
         loadedItem = current
         loadedStartPosition = position
         preloadedItem = next
+        if buffersOnLoad {
+            emit(.bufferingChanged(itemID: current.id, isBuffering: true))
+        }
     }
 
     func preload(next: PlaybackItem?) {

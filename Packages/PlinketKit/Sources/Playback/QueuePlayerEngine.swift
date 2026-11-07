@@ -15,12 +15,14 @@ public final class QueuePlayerEngine: PlaybackEngine {
     /// A seek requested before the current item could seek, applied once it is ready.
     private var pendingSeekPosition: TimeInterval?
     private var timeObserver: Any?
+    private var playbackObservations: [NSKeyValueObservation] = []
     private var notificationObservers: [any NSObjectProtocol] = []
 
     public init() {
         player.actionAtItemEnd = .advance
         observeProgress()
         observeItemNotifications()
+        observePlaybackState()
     }
 
     isolated deinit {
@@ -40,6 +42,7 @@ public final class QueuePlayerEngine: PlaybackEngine {
         pendingSeekPosition = position > 0 ? position : nil
         player.insert(loadedCurrent.playerItem, after: nil)
         preload(next: next)
+        reportBuffering()
     }
 
     public func preload(next item: PlaybackItem?) {
@@ -55,10 +58,12 @@ public final class QueuePlayerEngine: PlaybackEngine {
 
     public func play() {
         player.play()
+        reportBuffering()
     }
 
     public func pause() {
         player.pause()
+        reportBuffering()
     }
 
     public func seek(to position: TimeInterval) {
@@ -83,6 +88,25 @@ public final class QueuePlayerEngine: PlaybackEngine {
     }
 
     // MARK: - Observation
+
+    private func observePlaybackState() {
+        playbackObservations = [
+            player.observe(\.timeControlStatus) { @Sendable [weak self] _, _ in
+                Task { @MainActor in self?.reportBuffering() }
+            },
+            player.observe(\.currentItem) { @Sendable [weak self] _, _ in
+                Task { @MainActor in self?.reportBuffering() }
+            },
+        ]
+    }
+
+    private func reportBuffering() {
+        guard let current, player.currentItem === current.playerItem else { return }
+        onEvent?(.bufferingChanged(
+            itemID: current.item.id,
+            isBuffering: !current.hasReportedFailure && player.timeControlStatus == .waitingToPlayAtSpecifiedRate
+        ))
+    }
 
     private func makeLoadedItem(_ item: PlaybackItem) -> LoadedItem {
         // Without precise timing, seeks in FLAC (and VBR MP3) land far from the target while reporting it.
@@ -158,6 +182,7 @@ public final class QueuePlayerEngine: PlaybackEngine {
         if next.playerItem.status == .failed {
             reportFailure(of: next, message: next.playerItem.error?.localizedDescription)
         }
+        reportBuffering()
     }
 
     private func handlePlaybackFailure(of failedItemID: ObjectIdentifier, message: String?) {

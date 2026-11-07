@@ -36,6 +36,7 @@ struct LibraryRootView: View {
                 MiniPlayer(
                     song: song,
                     isPlaying: player.isPlaying,
+                    isBuffering: player.isBuffering,
                     open: { isShowingNowPlaying = true },
                     togglePlayPause: player.togglePlayPause,
                     next: player.next
