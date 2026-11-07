@@ -19,6 +19,14 @@ public final class LibraryStore {
     static let albumSortDirectionDefaultsKey = "library.albumSortDirection"
 
     public private(set) var albums: [Album] = []
+    public var albumFilter = AlbumFilter()
+
+    /// Matches the current filters in the selected sort order, using live favorite state.
+    public var filteredAlbums: [Album] {
+        guard albumFilter.isActive else { return albums }
+        return albums.filter { albumFilter.matches($0, isFavorite: isStarred($0)) }
+    }
+
     /// In A–Z index order, see ``ArtistIndex``.
     public private(set) var artists: [Artist] = []
     public private(set) var playlists: [Playlist] = []

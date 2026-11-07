@@ -2,24 +2,53 @@ import Library
 import Subsonic
 import SwiftUI
 
-/// All albums as a cover grid, with sorting and refresh.
+/// All albums as a cover grid, with filtering, sorting and refresh.
 struct AlbumGridView: View {
     @Environment(LibraryStore.self) private var library
+    @State private var isShowingFilters = false
 
     var body: some View {
         @Bindable var library = library
-        content
+        let albums = library.filteredAlbums
+        content(albums: albums)
             .navigationTitle("Albums")
             .toolbar {
                 ToolbarItem {
+                    Button("Filter Albums", systemImage: library.albumFilter.isActive
+                           ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle") {
+                        isShowingFilters = true
+                    }
+                }
+                ToolbarItem {
                     AlbumSortMenu(selection: $library.albumSort, direction: $library.albumSortDirection)
                 }
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                if library.albumFilter.isActive {
+                    HStack {
+                        Text("\(albums.count) of \(library.albums.count) albums")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Clear Filters") { library.albumFilter = AlbumFilter() }
+                    }
+                    .padding()
+                    .background(.bar)
+                }
+            }
+            .sheet(isPresented: $isShowingFilters) {
+                AlbumFilterView(
+                    filter: $library.albumFilter,
+                    genres: AlbumFilter.genres(in: library.albums),
+                    moods: AlbumFilter.moods(in: library.albums),
+                    matchingCount: albums.count
+                )
             }
             .refreshable { await library.refresh(.albums) }
     }
 
     @ViewBuilder
-    private var content: some View {
+    private func content(albums: [Album]) -> some View {
         if library.albums.isEmpty {
             CollectionPlaceholder(
                 collection: .albums,
@@ -29,9 +58,21 @@ struct AlbumGridView: View {
                 Task { await library.refresh(.albums) }
             }
         } else {
-            ScrollView {
-                AlbumTiles(albums: library.albums)
-                    .padding()
+            Group {
+                if albums.isEmpty {
+                    ContentUnavailableView {
+                        Label("No Matching Albums", systemImage: "line.3.horizontal.decrease.circle")
+                    } description: {
+                        Text("Try changing or clearing your album filters.")
+                    } actions: {
+                        Button("Clear Filters") { library.albumFilter = AlbumFilter() }
+                    }
+                } else {
+                    ScrollView {
+                        AlbumTiles(albums: albums)
+                            .padding()
+                    }
+                }
             }
             .refreshErrorBanner(library.refreshError(for: .albums))
         }

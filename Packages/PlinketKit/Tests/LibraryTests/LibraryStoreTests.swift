@@ -8,6 +8,92 @@ struct LibraryStoreTests {
     private let cacheDirectory = makeTemporaryDirectory()
     private let defaults = makeIsolatedDefaults()
 
+    @Test func albumFilter_keepsSortOrderAndFullLibraryWithoutRequests() async {
+        let recorder = RequestRecorder()
+        let store = makeStore(client: makeStubbedClient { request in
+            recorder.record(request)
+            return filterAlbumsResponse
+        })
+        await store.refresh(.albums)
+        let requestCount = recorder.urls.count
+        store.albumSort = .title
+        store.albumSortDirection = .descending
+
+        store.albumFilter = AlbumFilter(genre: "Jazz", mood: "Calm", minimumRating: 4)
+
+        #expect(store.filteredAlbums.map(\.id) == ["z", "a"])
+        #expect(store.albums.map(\.id) == ["z", "rock", "a"])
+        #expect(AlbumFilter.genres(in: store.albums) == ["Jazz", "Rock"])
+        #expect(recorder.urls.count == requestCount)
+        store.albumFilter = AlbumFilter(mood: "Missing")
+        #expect(store.filteredAlbums.isEmpty)
+        store.albumFilter = AlbumFilter()
+        #expect(store.filteredAlbums == store.albums)
+    }
+
+    @Test func albumFilter_usesCachedMetadataOfflineAndKeepsFiltersOnRefresh() async {
+        await makeStore(client: makeStubbedClient { _ in filterAlbumsResponse }).refresh(.albums)
+        let offline = makeStore(client: makeOfflineClient())
+        await offline.loadCachedSnapshots()
+        let filter = AlbumFilter(genre: "Jazz", mood: "Calm", minimumRating: 5)
+
+        offline.albumFilter = filter
+        await offline.refresh(.albums)
+
+        #expect(offline.filteredAlbums.map(\.id) == ["a"])
+        #expect(offline.albumFilter == filter)
+        #expect(offline.refreshError(for: .albums) == .http(statusCode: 503))
+    }
+
+    @Test func albumFilter_favoritesUseAuthoritativeStateAndUpdateAfterMutations() async {
+        let store = makeStore(client: makeStubbedClient(handler: routedHandler([
+            "getAlbumList2": filterAlbumsResponse,
+            "getStarred2": subsonicResponse("starred2", json: #"{"album":[{"id":"z","name":"Zulu","starred":"2026-10-15T00:00:00Z"}]}"#),
+            "star": subsonicResponse(),
+            "unstar": subsonicResponse(),
+        ])))
+        await store.refresh(.albums)
+        store.albumFilter = AlbumFilter(favoritesOnly: true)
+        #expect(store.filteredAlbums.map(\.id) == ["a"])
+
+        await store.refresh(.starred)
+
+        #expect(store.filteredAlbums.map(\.id) == ["z"])
+        await store.setStarred(false, album: store.albums.first { $0.id == "z" }!)
+        #expect(store.filteredAlbums.isEmpty)
+        await store.setStarred(true, album: store.albums.first { $0.id == "a" }!)
+        #expect(store.filteredAlbums.map(\.id) == ["a"])
+    }
+
+    @Test func albumFilter_favoriteFailureRestoresMatchingAlbums() async {
+        let store = makeStore(client: makeStubbedClient(handler: routedHandler([
+            "getAlbumList2": filterAlbumsResponse,
+        ])))
+        await store.refresh(.albums)
+        store.albumFilter = AlbumFilter(favoritesOnly: true)
+
+        await store.setStarred(false, album: store.filteredAlbums[0])
+
+        #expect(store.filteredAlbums.map(\.id) == ["a"])
+        #expect(store.starError == .http(statusCode: 503))
+    }
+
+    @Test func albumFilter_refreshReevaluatesMetadataWithoutResettingSelection() async {
+        await makeStore(client: makeStubbedClient { _ in filterAlbumsResponse }).refresh(.albums)
+        let store = makeStore(client: makeStubbedClient { _ in
+            subsonicResponse("albumList2", json: #"{"album":[{"id":"a","name":"Alpha","genre":"Jazz","moods":["Loud"],"userRating":5},{"id":"new","name":"New","genre":"Jazz","moods":["Calm"],"userRating":5}]}"#)
+        })
+        await store.loadCachedSnapshots()
+        let filter = AlbumFilter(genre: "Jazz", mood: "Calm", minimumRating: 5)
+        store.albumFilter = filter
+        #expect(store.filteredAlbums.map(\.id) == ["a"])
+
+        await store.refresh(.albums)
+
+        #expect(store.albumFilter == filter)
+        #expect(store.filteredAlbums.map(\.id) == ["new"])
+    }
+
     @Test func refresh_persistsSnapshotForNextLaunch() async {
         let onlineClient = makeStubbedClient { _ in albumListResponse([("1", "Brighten")]) }
         await makeStore(client: onlineClient).refresh(.albums)
@@ -242,14 +328,17 @@ struct LibraryStoreTests {
             return subsonicResponse()
         })
         await store.refresh(.albums)
+        store.albumFilter = AlbumFilter(favoritesOnly: true)
 
         let starring = Task { await store.setStarred(true, album: store.albums[0]) }
         for await _ in starRequests { break }
         let isStarredWhilePending = store.albums[0].isStarred
+        let filteredIDsWhilePending = store.filteredAlbums.map(\.id)
         serverAnswer.signal()
         await starring.value
 
         #expect(isStarredWhilePending)
+        #expect(filteredIDsWhilePending == ["1"])
     }
 
     @Test func setStarred_rollsBackAlbumWhenServerFails() async {
@@ -311,6 +400,17 @@ struct LibraryStoreTests {
         makeStubbedClient { _ in StubURLProtocol.StubResponse(statusCode: 503) }
     }
 }
+
+private let filterAlbumsResponse = subsonicResponse(
+    "albumList2",
+    json: #"""
+    {"album":[
+      {"id":"a","name":"Alpha","genre":"Jazz","moods":["Calm"],"userRating":5,"starred":"2026-10-15T00:00:00Z"},
+      {"id":"rock","name":"Rock","genre":"Rock","moods":["Loud"],"userRating":3},
+      {"id":"z","name":"Zulu","genres":[{"name":"Jazz"}],"moods":["Slow","Calm"],"userRating":4}
+    ]}
+    """#
+)
 
 private let artistsResponse = subsonicResponse(
     "artists",
