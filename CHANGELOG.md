@@ -10,6 +10,9 @@ The public website changelog is generated from published [GitHub release notes](
 
 ### Added
 - Album detail headers show track counts and total playing time alongside the release year.
+- A subtle buffering indicator with accessibility feedback in the iOS players and Mac player bar while playback waits for audio.
+- Report a Problem and What’s New links in About Plinket on iPhone, iPad and Mac.
+- Album filters for genre, mood, favorites and minimum star rating, combinable with the selected sort order and available offline.
 - Persistent music downloads with Original, Opus and MP3 formats, offline playback, cellular and storage limits, and a download storage overview.
 - Clarification in About Plinket on iPhone, iPad and Mac that Plinket is unofficial and not affiliated with or endorsed by Navidrome.
 - Album sorting by your server rating, with highest/lowest-first ordering and unrated albums last.

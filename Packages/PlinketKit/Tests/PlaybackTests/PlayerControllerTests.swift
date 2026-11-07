@@ -8,6 +8,127 @@ struct PlayerControllerTests {
     private let engine = FakeEngine()
     private let songs = [makeSong("a"), makeSong("b"), makeSong("c")]
 
+    @Test func buffering_acceptsStateReportedSynchronouslyDuringLoad() {
+        engine.buffersOnLoad = true
+        let player = makePlayer()
+
+        player.play(songs: songs)
+
+        #expect(player.isPlaying && player.isBuffering)
+    }
+
+    @Test func buffering_failureCanStartWaitingForTheNextSong() throws {
+        engine.buffersOnLoad = true
+        let player = makePlayer()
+        player.play(songs: songs)
+        let item = try #require(engine.loadedItem)
+
+        engine.emit(.failed(itemID: item.id, message: "Offline"))
+
+        #expect(player.currentSong?.id == "b" && player.isBuffering)
+        #expect(player.error?.songTitle == "Song a")
+    }
+
+    @Test func buffering_followsEngineWaitingRatherThanPlaybackIntentOrProgress() throws {
+        let player = makePlayer()
+        player.play(songs: songs)
+        let item = try #require(engine.loadedItem)
+        #expect(player.isPlaying && !player.isBuffering)
+
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+        #expect(player.isPlaying && player.isBuffering && player.error == nil)
+        engine.emit(.progressed(position: 0, duration: 200))
+        #expect(player.isBuffering)
+
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: false))
+        #expect(player.isPlaying && !player.isBuffering)
+
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+        #expect(player.isBuffering)
+    }
+
+    @Test func buffering_pauseClearsWaitingAndIgnoresLateEventsUntilResumed() throws {
+        let player = makePlayer()
+        player.play(songs: songs)
+        let item = try #require(engine.loadedItem)
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+
+        player.togglePlayPause()
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+        #expect(!player.isPlaying && !player.isBuffering && !engine.isPlaying)
+
+        player.togglePlayPause()
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+        #expect(player.isPlaying && player.isBuffering)
+    }
+
+    @Test func buffering_skipClearsPreviousTrackAndRejectsItsLateEvents() throws {
+        let player = makePlayer()
+        player.play(songs: songs)
+        let previous = try #require(engine.loadedItem)
+        engine.emit(.bufferingChanged(itemID: previous.id, isBuffering: true))
+
+        player.next()
+        let current = try #require(engine.loadedItem)
+        #expect(player.currentSong?.id == "b" && !player.isBuffering)
+        engine.emit(.bufferingChanged(itemID: previous.id, isBuffering: true))
+        #expect(!player.isBuffering)
+
+        engine.emit(.bufferingChanged(itemID: current.id, isBuffering: true))
+        engine.emit(.bufferingChanged(itemID: previous.id, isBuffering: false))
+        #expect(player.isBuffering)
+    }
+
+    @Test func buffering_naturalAdvanceClearsPreviousWaitingState() throws {
+        let player = makePlayer()
+        player.play(songs: songs)
+        let previous = try #require(engine.loadedItem)
+        engine.emit(.bufferingChanged(itemID: previous.id, isBuffering: true))
+
+        engine.finishCurrentItem()
+        #expect(player.currentSong?.id == "b" && !player.isBuffering)
+
+        let current = try #require(engine.loadedItem)
+        engine.emit(.bufferingChanged(itemID: current.id, isBuffering: true))
+        #expect(player.isBuffering)
+    }
+
+    @Test func buffering_failureStopsWaitingAndKeepsTheErrorDistinct() throws {
+        let player = makePlayer()
+        player.play(songs: [songs[0]])
+        let item = try #require(engine.loadedItem)
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+
+        engine.emit(.failed(itemID: item.id, message: "Offline"))
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+
+        #expect(!player.isPlaying && !player.isBuffering)
+        #expect(player.error == PlaybackError(songTitle: "Song a", message: "Offline"))
+    }
+
+    @Test func buffering_endOfQueueClearsWaiting() throws {
+        let player = makePlayer()
+        player.play(songs: [songs[0]])
+        let item = try #require(engine.loadedItem)
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+
+        engine.finishCurrentItem()
+
+        #expect(!player.isPlaying && !player.isBuffering)
+    }
+
+    @Test func buffering_shutdownClearsWaitingAndRejectsLateEvents() throws {
+        let player = makePlayer()
+        player.play(songs: songs)
+        let item = try #require(engine.loadedItem)
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+
+        player.shutDown()
+        engine.emit(.bufferingChanged(itemID: item.id, isBuffering: true))
+
+        #expect(!player.isPlaying && !player.isBuffering && engine.loadedItem == nil)
+    }
+
     @Test func downloadedSongsUseLocalFilesForCurrentAndPreloadedItems() {
         let local = URL(filePath: "/offline/song.mp3")
         let remote = URL(string: "https://music.example/stream")!

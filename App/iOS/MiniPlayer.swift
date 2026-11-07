@@ -7,6 +7,7 @@ struct MiniPlayer: View {
 
     let song: Song
     let isPlaying: Bool
+    let isBuffering: Bool
     let open: () -> Void
     let togglePlayPause: () -> Void
     let next: () -> Void
@@ -35,7 +36,7 @@ struct MiniPlayer: View {
             .onTapGesture(perform: open)
             .accessibilityAddTraits(.isButton)
             .accessibilityAction(named: "Open Now Playing", open)
-            PlayPauseButton(isPlaying: isPlaying, action: togglePlayPause)
+            PlayPauseButton(isPlaying: isPlaying, isBuffering: isBuffering, action: togglePlayPause)
             if placement != .inline {
                 Button("Next", systemImage: "forward.fill", action: next)
             }

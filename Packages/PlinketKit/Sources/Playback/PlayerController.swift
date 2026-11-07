@@ -18,6 +18,7 @@ public final class PlayerController {
     public private(set) var queue = PlayQueue<Song>()
     /// Whether playback is wanted; the engine may still be buffering.
     public private(set) var isPlaying = false
+    public private(set) var isBuffering = false
     public private(set) var position: TimeInterval = 0
     /// The most recent song that could not be played; cleared when another song starts.
     public private(set) var error: PlaybackError?
@@ -103,8 +104,9 @@ public final class PlayerController {
 
     /// Stops playback for good, e.g. on sign-out.
     public func shutDown() {
-        engine.stop()
+        isBuffering = false
         isPlaying = false
+        engine.stop()
         loadedEntryID = nil
         preloadedEntryID = nil
     }
@@ -124,6 +126,7 @@ public final class PlayerController {
 
     public func pause() {
         isPlaying = false
+        isBuffering = false
         engine.pause()
         saveState()
     }
@@ -221,15 +224,17 @@ public final class PlayerController {
         hasLoadFailure = false
         mediaDuration = nil
         position = startPosition
+        isBuffering = false
         guard let entry = queue.currentEntry else {
             shutDown()
             saveState()
             return
         }
         let nextEntry = queue.peekNextEntry()
-        engine.load(playbackItem(for: entry), startingAt: startPosition, next: nextEntry.map(playbackItem(for:)))
         loadedEntryID = entry.id
         preloadedEntryID = nextEntry?.id
+        isPlaying = shouldPlay
+        engine.load(playbackItem(for: entry), startingAt: startPosition, next: nextEntry.map(playbackItem(for:)))
         needsStartReport = true
         if shouldPlay {
             play()
@@ -273,6 +278,9 @@ public final class PlayerController {
 
     private func handle(_ event: PlaybackEngineEvent) {
         switch event {
+        case .bufferingChanged(let entryID, let isBuffering):
+            guard entryID == loadedEntryID else { return }
+            self.isBuffering = isPlaying && !hasLoadFailure && isBuffering
         case .progressed(let newPosition, let newDuration):
             handleProgress(position: newPosition, duration: newDuration)
         case .advanced(let entryID):
@@ -299,6 +307,7 @@ public final class PlayerController {
             return
         }
         loadedEntryID = entryID
+        isBuffering = false
         preloadedEntryID = nil
         error = nil
         consecutiveFailures = 0
@@ -325,6 +334,7 @@ public final class PlayerController {
             startCurrentEntry(at: 0, playing: true)
         } else {
             isPlaying = false
+            isBuffering = false
             engine.pause()
             hasLoadFailure = true
         }

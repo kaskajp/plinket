@@ -16,6 +16,8 @@ public struct PlaybackItem: Sendable, Hashable, Identifiable {
 
 /// Something the engine observed while playing.
 public enum PlaybackEngineEvent: Sendable, Equatable {
+    /// Whether the current item is waiting for audio, rather than playing or paused.
+    case bufferingChanged(itemID: PlaybackItem.ID, isBuffering: Bool)
     /// Periodic progress of the current item; `duration` is `nil` until the media reports it.
     case progressed(position: TimeInterval, duration: TimeInterval?)
     /// The current item finished and the preloaded item took over without a reload.

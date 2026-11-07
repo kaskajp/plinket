@@ -3,6 +3,7 @@ import SwiftUI
 /// Previous, play/pause and next buttons.
 struct TransportControls: View {
     let isPlaying: Bool
+    let isBuffering: Bool
     let isEnabled: Bool
     let previous: () -> Void
     let togglePlayPause: () -> Void
@@ -11,7 +12,7 @@ struct TransportControls: View {
     var body: some View {
         HStack(spacing: 24) {
             Button("Previous", systemImage: "backward.fill", action: previous)
-            PlayPauseButton(isPlaying: isPlaying, action: togglePlayPause)
+            PlayPauseButton(isPlaying: isPlaying, isBuffering: isBuffering, action: togglePlayPause)
                 .font(.largeTitle)
             Button("Next", systemImage: "forward.fill", action: next)
         }
@@ -24,6 +25,7 @@ struct TransportControls: View {
 /// Shows "pause" while playing and "play" otherwise.
 struct PlayPauseButton: View {
     let isPlaying: Bool
+    let isBuffering: Bool
     let action: () -> Void
 
     var body: some View {
@@ -40,5 +42,18 @@ struct PlayPauseButton: View {
             }
         }
         .contentTransition(.symbolEffect(.replace))
+        .accessibilityLabel(isPlaying ? Text("Pause") : Text("Play"))
+        .accessibilityValue(isBuffering ? Text("Buffering") : Text(""))
+        .overlay(alignment: .trailing) {
+            if isBuffering {
+                ProgressView()
+                    .controlSize(.mini)
+                    .frame(width: 12, height: 12)
+                    .offset(x: 18)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+        }
+        .padding(.trailing, 18)
     }
 }
