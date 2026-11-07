@@ -21,6 +21,7 @@ struct NowPlayingView: View {
             PlaybackScrubber(position: player.position, duration: player.duration, seek: player.seek(to:))
             TransportControls(
                 isPlaying: player.isPlaying,
+                isBuffering: player.isBuffering,
                 isEnabled: player.currentSong != nil,
                 previous: player.previous,
                 togglePlayPause: player.togglePlayPause,

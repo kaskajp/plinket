@@ -1,3 +1,4 @@
+import Accessibility
 import Downloads
 import SwiftUI
 
@@ -40,6 +41,10 @@ struct RootView: View {
                 .environment(\.playbackActions, PlaybackActions(player: session.player))
                 .favoriteErrorAlert(library: session.library)
                 .downloadErrorAlert(downloads: session.downloads)
+                .onChange(of: session.player.isBuffering) { _, isBuffering in
+                    guard isBuffering else { return }
+                    AccessibilityNotification.Announcement(String(localized: "Buffering audio")).post()
+                }
                 #if DEBUG
                 .task(id: session.id) {
                     await session.startup.value

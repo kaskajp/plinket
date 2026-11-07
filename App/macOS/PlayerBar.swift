@@ -28,6 +28,7 @@ struct PlayerBar: View {
             VStack(spacing: 4) {
                 TransportControls(
                     isPlaying: player.isPlaying,
+                    isBuffering: player.isBuffering,
                     isEnabled: player.currentSong != nil,
                     previous: player.previous,
                     togglePlayPause: player.togglePlayPause,
