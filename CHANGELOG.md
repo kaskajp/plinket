@@ -9,6 +9,7 @@ The public website changelog is generated from published [GitHub release notes](
 ## [Unreleased]
 
 ### Added
+- Retry failed searches and album track loads without leaving the page on iPhone, iPad and Mac.
 - Album detail headers show track counts and total playing time alongside the release year.
 - A subtle buffering indicator with accessibility feedback in the iOS players and Mac player bar while playback waits for audio.
 - Report a Problem and What’s New links in About Plinket on iPhone, iPad and Mac.

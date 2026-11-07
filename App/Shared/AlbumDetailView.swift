@@ -6,9 +6,19 @@ import SwiftUI
 struct AlbumDetailView: View {
     let album: Album
 
+    var body: some View {
+        AlbumDetailContent(album: album)
+            .id(album.id)
+    }
+}
+
+private struct AlbumDetailContent: View {
+    let album: Album
+
     @Environment(LibraryStore.self) private var library
     @Environment(\.playbackActions) private var playbackActions
     @State private var loadError: SubsonicError?
+    @State private var attempt = 0
 
     var body: some View {
         let detail = library.cachedAlbumDetail(id: album.id)
@@ -38,8 +48,18 @@ struct AlbumDetailView: View {
             if let detail {
                 AlbumTracks(detail: detail)
             } else if let loadError {
-                ContentUnavailableView("Couldn’t Load Tracks", systemImage: "exclamationmark.triangle", description: Text(loadError.localizedDescription))
-                    .listRowSeparator(.hidden)
+                ContentUnavailableView {
+                    Label("Couldn’t Load Tracks", systemImage: "exclamationmark.triangle")
+                } description: {
+                    Text(loadError.localizedDescription)
+                } actions: {
+                    Button("Try Again") {
+                        guard self.loadError != nil else { return }
+                        self.loadError = nil
+                        attempt += 1
+                    }
+                }
+                .listRowSeparator(.hidden)
             } else {
                 ProgressView()
                     .frame(maxWidth: .infinity)
@@ -51,7 +71,7 @@ struct AlbumDetailView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .task(id: album.id) { await loadDetail() }
+        .task(id: attempt) { await loadDetail() }
     }
 
     private func headerCaption(detail: AlbumDetail?) -> String? {
@@ -66,8 +86,10 @@ struct AlbumDetailView: View {
     private func loadDetail() async {
         do {
             try await library.albumDetail(id: album.id)
+            guard !Task.isCancelled else { return }
             loadError = nil
         } catch {
+            guard !Task.isCancelled else { return }
             loadError = error
         }
     }
