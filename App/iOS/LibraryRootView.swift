@@ -44,7 +44,12 @@ struct LibraryRootView: View {
             }
         }
         .sheet(isPresented: $isShowingNowPlaying) {
-            NowPlayingView()
+            NavigationStack {
+                NowPlayingView()
+                    .navigationTitle("Now Playing")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .libraryDestinations()
+            }
         }
         .sheet(isPresented: $isShowingSettings) {
             NavigationStack {
