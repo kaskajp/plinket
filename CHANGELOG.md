@@ -9,6 +9,7 @@ The public website changelog is generated from published [GitHub release notes](
 ## [Unreleased]
 
 ### Added
+- Open album and artist pages from Now Playing on iPhone and iPad without leaving your browsing context.
 - Retry failed searches and album track loads without leaving the page on iPhone, iPad and Mac.
 - Album detail headers show track counts and total playing time alongside the release year.
 - A subtle buffering indicator with accessibility feedback in the iOS players and Mac player bar while playback waits for audio.

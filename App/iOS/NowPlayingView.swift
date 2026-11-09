@@ -79,13 +79,13 @@ private struct SongDetails: View {
                 .font(.title2.bold())
                 .lineLimit(2)
             if let artist = song?.artist {
-                Text(artist)
+                artistName(artist)
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
             if let album = song?.album {
-                Text(album)
+                albumName(album)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -97,6 +97,30 @@ private struct SongDetails: View {
             }
         }
         .multilineTextAlignment(.center)
+    }
+
+    @ViewBuilder
+    private func artistName(_ name: String) -> some View {
+        if let id = song?.artistID, !id.isEmpty {
+            NavigationLink(value: Artist(id: id, name: name)) {
+                Text(name)
+            }
+            .accessibilityLabel("View artist: \(name)")
+        } else {
+            Text(name)
+        }
+    }
+
+    @ViewBuilder
+    private func albumName(_ name: String) -> some View {
+        if let id = song?.albumID, !id.isEmpty {
+            NavigationLink(value: Album(id: id, name: name, artist: song?.artist, coverArtID: song?.coverArtID)) {
+                Text(name)
+            }
+            .accessibilityLabel("View album: \(name)")
+        } else {
+            Text(name)
+        }
     }
 }
 
