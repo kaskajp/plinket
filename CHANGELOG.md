@@ -8,6 +8,8 @@ The public website changelog is generated from published [GitHub release notes](
 
 ## [Unreleased]
 
+## [1.1.0 (2)] - 2026-11-14
+
 ### Added
 - Open album and artist pages from Now Playing on iPhone and iPad without leaving your browsing context.
 - Retry failed searches and album track loads without leaving the page on iPhone, iPad and Mac.
@@ -42,5 +44,6 @@ First version of Plinket, an album-first client for Navidrome and other Subsonic
 - About screens with links to the website and privacy policy.
 - App icon and purple accent color.
 
-[Unreleased]: https://github.com/kaskajp/plinket/compare/v1.0.0-build.1...HEAD
+[Unreleased]: https://github.com/kaskajp/plinket/compare/v1.1.0-build.2...HEAD
+[1.1.0 (2)]: https://github.com/kaskajp/plinket/compare/v1.0.0-build.1...v1.1.0-build.2
 [1.0.0 (1)]: https://github.com/kaskajp/plinket/releases/tag/v1.0.0-build.1
