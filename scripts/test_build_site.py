@@ -83,6 +83,34 @@ class ChangelogTests(unittest.TestCase):
 
         self.assertIn("No release notes were provided.", result)
 
+    def test_app_notes_stay_out_of_website_until_published_as_a_release(self) -> None:
+        published = release("v1.0.0", "2026-11-06T12:00:00Z", "<p>Public release notes.</p>")
+        draft = release("v1.1.0", "2026-11-15T12:00:00Z", "<p>Draft release notes.</p>") | {"draft": True}
+        preview = release("v1.2.0-beta", "2026-11-15T12:00:00Z", "<p>Preview release notes.</p>") | {"prerelease": True}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "checkout"
+            (root / "docs/changelog").mkdir(parents=True)
+            (root / "docs/changelog/index.html").write_text(self.template)
+            (root / "CHANGELOG.md").write_text(
+                "# Changelog\n\n## [Unreleased]\nUnreleased app notes.\n\n"
+                "## [1.1.0 (2)] - 2026-11-15\nVersioned TestFlight notes.\n"
+            )
+            output = Path(directory) / "site"
+            with patch.object(site, "ROOT", root):
+                site.build_site(output, [published, draft, preview])
+
+                result = (output / "changelog/index.html").read_text()
+                self.assertIn("Public release notes.", result)
+                self.assertNotIn("Draft release notes.", result)
+                self.assertNotIn("Preview release notes.", result)
+                self.assertNotIn("Unreleased app notes.", result)
+                self.assertNotIn("Versioned TestFlight notes.", result)
+                self.assertFalse((output / "CHANGELOG.md").exists())
+
+                site.build_site(output, [published, draft | {"draft": False}, preview])
+
+                self.assertIn("Draft release notes.", (output / "changelog/index.html").read_text())
+
     def test_missing_rendered_notes_fails_instead_of_silently_omitting_them(self) -> None:
         entry = release("v1.0.0", "2026-11-06T12:00:00Z")
         del entry["body_html"]
