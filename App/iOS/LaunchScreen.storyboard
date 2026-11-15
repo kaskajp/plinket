@@ -14,8 +14,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="launch-brand">
-                                <rect key="frame" x="132.5" y="336" width="128" height="180"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="-16" translatesAutoresizingMaskIntoConstraints="NO" id="launch-brand">
+                                <rect key="frame" x="132.5" y="352" width="128" height="148"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="launch-logo">
                                         <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
@@ -25,7 +25,7 @@
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Plinket" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="launch-title">
-                                        <rect key="frame" x="17" y="144" width="94" height="36"/>
+                                        <rect key="frame" x="17" y="112" width="94" height="36"/>
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="30"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </label>
