@@ -3,7 +3,8 @@ import SwiftUI
 /// Matches the native launch screen while the saved library and queue are restored.
 struct SplashView: View {
     var body: some View {
-        VStack(spacing: 16) {
+        // The logo's built-in padding keeps the visible mark clear of the title even when their frames overlap.
+        VStack(spacing: -16) {
             Image("Logo")
                 .resizable()
                 .frame(width: 128, height: 128)

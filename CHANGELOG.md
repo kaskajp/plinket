@@ -10,6 +10,7 @@ The public website changelog is generated from published [GitHub release notes](
 
 ### Changed
 - Read What’s New natively and offline on iPhone and iPad, including unpublished notes shipped with the build being tested.
+- Bring the app name closer to the logo on the launch and startup screens.
 
 ## [1.1.0 (2)] - 2026-11-14
 
