@@ -22,6 +22,8 @@ targets:
     platform: auto
     supportedDestinations: [iOS, macOS]
     sources:
+      - path: CHANGELOG.md
+        buildPhase: resources
       - path: App
         excludes:
           - "iOS/**"

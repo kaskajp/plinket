@@ -63,6 +63,8 @@ The script reads Version and Build from the Xcode project, files the Unreleased 
 
 Published GitHub release notes are the source for the [website changelog](https://plinket.4z.nu/changelog/). `CHANGELOG.md` remains the development log; the website never reads it. To correct public notes, edit the release description on GitHub and save. Publishing or editing a release automatically rebuilds the website; drafts and prereleases are excluded. Unpublishing or deleting a release also rebuilds the page. No website edit is needed, and before the first release the page shows an empty state.
 
+On iPhone and iPad, **About Plinket → What’s New** reads a copy of `CHANGELOG.md` bundled with the app. It works offline and includes unpublished TestFlight notes: nonempty Unreleased notes appear under **In This Build**, followed by versioned history. Keep notes up to date before archiving a build; publishing a GitHub release is not required for the in-app changelog.
+
 ## Website
 
 The static source lives in `docs/`. The **Deploy website** workflow builds `build/site/` with `scripts/build-site.py`, using the GitHub API's rendered Markdown for release notes, then deploys the artifact to GitHub Pages. It fetches every page of releases and orders public releases by publication date, newest first. API failures stop the build and leave the previous deployment intact. Pull requests run the tests and build without deploying.

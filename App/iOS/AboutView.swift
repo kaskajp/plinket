@@ -36,7 +36,9 @@ struct AboutView: View {
                 Link(destination: AppInfo.reportProblemURL) {
                     Label("Report a Problem", systemImage: "exclamationmark.bubble")
                 }
-                Link(destination: AppInfo.changelogURL) {
+                NavigationLink {
+                    ChangelogView()
+                } label: {
                     Label("What’s New", systemImage: "sparkles")
                 }
             }
