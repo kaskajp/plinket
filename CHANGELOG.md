@@ -9,6 +9,7 @@ The public website changelog is generated from published [GitHub release notes](
 ## [Unreleased]
 
 ### Changed
+- Report problems directly in the app on iPhone, iPad and Mac, with optional screenshots sent to the developer’s Linear triage.
 - Read What’s New natively and offline on iPhone and iPad, including unpublished notes shipped with the build being tested.
 - Bring the app name closer to the logo on the launch and startup screens.
 

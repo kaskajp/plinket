@@ -5,9 +5,11 @@ let package = Package(
     name: "PlinketKit",
     platforms: [.iOS("27.0"), .macOS("27.0")],
     products: [
-        .library(name: "PlinketKit", targets: ["Subsonic", "Library", "Playback", "Downloads", "ReleaseNotes"]),
+        .library(name: "PlinketKit", targets: ["Subsonic", "Library", "Playback", "Downloads", "ReleaseNotes", "Feedback"]),
     ],
     targets: [
+        .target(name: "Feedback"),
+        .testTarget(name: "FeedbackTests", dependencies: ["Feedback"]),
         .target(name: "ReleaseNotes"),
         .testTarget(name: "ReleaseNotesTests", dependencies: ["ReleaseNotes"]),
         .target(name: "Subsonic"),
