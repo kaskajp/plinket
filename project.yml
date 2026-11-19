@@ -43,6 +43,7 @@ targets:
         # Hand-maintained and not regenerated: Xcode adds the bundle keys, including Version and Build, at build time.
         INFOPLIST_FILE: App/Resources/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: Plinket
+        PLINKET_FEEDBACK_URL: "https://plinketreport.4z.nu/report"
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.music
         INFOPLIST_KEY_NSLocalNetworkUsageDescription: "Plinket connects to your music server when it’s on your local network."

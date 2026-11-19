@@ -3,6 +3,7 @@ import SwiftUI
 /// The app's icon, version and description, with project and support links.
 struct AboutView: View {
     private let logoSize: CGFloat = 88
+    @State private var showsReportForm = false
 
     var body: some View {
         Form {
@@ -33,17 +34,35 @@ struct AboutView: View {
                 Link(destination: AppInfo.privacyPolicyURL) {
                     Label("Privacy Policy", systemImage: "hand.raised")
                 }
-                Link(destination: AppInfo.reportProblemURL) {
+                Button {
+                    showsReportForm = true
+                } label: {
                     Label("Report a Problem", systemImage: "exclamationmark.bubble")
                 }
+                #if os(iOS)
                 NavigationLink {
                     ChangelogView()
                 } label: {
                     Label("What’s New", systemImage: "sparkles")
                 }
+                #else
+                Link(destination: AppInfo.changelogURL) {
+                    Label("What’s New", systemImage: "sparkles")
+                }
+                #endif
             }
         }
         .navigationTitle("About")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .sheet(isPresented: $showsReportForm) {
+            NavigationStack {
+                ReportProblemView()
+            }
+            #if os(macOS)
+            .frame(width: 520, height: 640)
+            #endif
+        }
     }
 }

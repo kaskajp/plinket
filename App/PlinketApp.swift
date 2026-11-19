@@ -21,6 +21,14 @@ struct PlinketApp: App {
         }
         #endif
         #if os(macOS)
+        Window("About Plinket", id: "about") {
+            NavigationStack {
+                AboutView()
+            }
+            .frame(width: 460, height: 620)
+        }
+        .windowResizability(.contentSize)
+
         Settings {
             SettingsView()
                 .environment(appModel)

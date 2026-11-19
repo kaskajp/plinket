@@ -51,7 +51,24 @@ Packages/PlinketKit/
   Library/           cached library store, star/unstar, image cache
   Playback/          queue, AVQueuePlayer engine, Now Playing, scrobbling
   Downloads/         durable offline files, settings, storage and network policy
+  Feedback/          report validation and submission to the developer’s relay
 ```
+
+## Problem reports
+
+**About Plinket → Report a Problem** opens a native form on iPhone, iPad and Mac.
+Reports include a summary, description, up to three optional screenshots, app/OS
+version and language. Screenshots are resized and re-encoded without source
+metadata. Failed submissions keep the draft open for retry; a success message
+appears only after the relay confirms receipt.
+
+The relay runs on a Raspberry Pi with Node.js 24 or Docker and keeps the Linear
+credential off the device. See [feedback-relay/README.md](feedback-relay/README.md)
+for setup, HTTPS, tests and operational limits. The `PLINKET_FEEDBACK_URL` build
+setting points to `https://plinketreport.4z.nu/report`. Builds with an empty or
+invalid setting explain that reporting is unavailable and disable Send. The relay
+must be deployed before shipping this feature; it has not been deployed as part
+of the source change.
 
 ## Releasing
 Add notes under `## [Unreleased]` in `CHANGELOG.md` as you go. To release:
